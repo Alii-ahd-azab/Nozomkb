@@ -1,6 +1,7 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import PostCard from "@/components/PostCard";
+import Layout from "@/components/Layout";
 type Post = {
   id: number;
   title: string;
@@ -41,12 +42,15 @@ const posts: Post[] = [
   },
 ];
 
-
+function getPostCount(posts: Post[]) {
+  return posts.length;
+}
 
 export default function Home() {
   return (
-<main>
-  <div className="about-card">
+<Layout>
+  <main>
+  <div id="about" className="about-card">
     <p className="eyebrow">Internal Knowledge Platform</p>
     <h1>Nozom Knowledge Bank</h1>
 
@@ -68,10 +72,11 @@ export default function Home() {
   </div>
   </div>
   
-<section className="feed-section">
+<section id="feed" className="feed-section">
   <div className="feed-header">
     <p className="eyebrow">Employee Knowledge</p>
     <h2>Knowledge Feed</h2>
+    <p>{getPostCount(posts)} posts available</p>
   </div>
 
   <div className="feed-list">
@@ -87,7 +92,7 @@ export default function Home() {
 </section>
 
 
-
-</main>
+  </main>
+</Layout>
   );
 }
