@@ -233,6 +233,36 @@ html {
 }
 
 
+.post-details-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.post-details-card {
+  width: 100%;
+  max-width: 900px;
+  background: var(--nozom-white);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 18px 50px rgba(15, 76, 189, 0.08);
+}
+
+.post-details-card h1 {
+  margin: 16px 0;
+}
+
+.post-details-card p {
+  margin-bottom: 28px;
+}
+
+.back-link {
+  display: inline-block;
+  color: var(--nozom-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
 
 
 @media (prefers-color-scheme: dark) {

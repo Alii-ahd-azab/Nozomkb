@@ -1,60 +1,41 @@
-import PostCard from "@/components/PostCard";
-import Layout from "@/components/Layout";
-import { posts, type Post } from "@/data/posts";
+import Link from "next/link";
+import { posts } from "@/data/posts";
 
+type PostDetailsPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-function getPostCount(posts: Post[]) {
-  return posts.length;
-}
+export default async function PostDetailsPage({
+  params,
+}: PostDetailsPageProps) {
+  const { id } = await params;
 
-export default function Home() {
+  const post = posts.find((post) => post.id === Number(id));
+
+  if (!post) {
+    return (
+      <main>
+        <h1>Post not found</h1>
+        <Link href="/">Back to Feed</Link>
+      </main>
+    );
+  }
+
   return (
-<Layout>
-  <main>
-  <div id="about" className="about-card">
-    <p className="eyebrow">Internal Knowledge Platform</p>
-    <h1>Nozom Knowledge Bank</h1>
+    <main className="post-details-page">
+      <article className="post-details-card">
+        <span className="post-tag">{post.tag}</span>
 
-    <p>
-      An internal platform where Nozom employees can find company knowledge
-      and share useful experience.
-    </p>
+        <h1>{post.title}</h1>
 
-    <div className="features">
-  <div>
-    <h2>Find knowledge</h2>
-    <p>Search company information, policies, and useful employee knowledge.</p>
-  </div>
+        <p>{post.content}</p>
 
-  <div>
-    <h2>Share experience</h2>
-    <p>Employees can contribute useful posts and practical knowledge.</p>
-  </div>
-  </div>
-  </div>
-  
-<section id="feed" className="feed-section">
-  <div className="feed-header">
-    <p className="eyebrow">Employee Knowledge</p>
-    <h2>Knowledge Feed</h2>
-    <p>{getPostCount(posts)} posts available</p>
-  </div>
-
-  <div className="feed-list">
-    {posts.map((post) => (
-      <PostCard
-        key={post.id}
-        id={post.id}
-        title={post.title}
-        content={post.content}
-        tag={post.tag}
-      />
-    ))}
-  </div>
-</section>
-
-
-  </main>
-</Layout>
+        <Link href="/" className="back-link">
+          Back to Feed
+        </Link>
+      </article>
+    </main>
   );
 }
