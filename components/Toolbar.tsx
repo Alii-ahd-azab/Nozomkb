@@ -1,11 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-
-
 export default function Toolbar() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      setIsScrolled(window.scrollY > 8);
+    }
+
+    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <nav className="toolbar" aria-label="Main navigation">
+    <nav
+      className={`toolbar ${isScrolled ? "toolbar-scrolled" : ""}`}
+      aria-label="Main navigation"
+    >
       <div className="toolbar-inner">
         <Link href="/" className="toolbar-brand">
           <Image
@@ -16,7 +36,9 @@ export default function Toolbar() {
             className="toolbar-logo"
           />
 
-          <span>Nozom Knowledge Bank</span>
+          <span className="toolbar-brand-text">
+            Nozom Knowledge Bank
+          </span>
         </Link>
 
         <div className="toolbar-links">
