@@ -1,11 +1,7 @@
 import PostCard from "@/components/PostCard";
 import Layout from "@/components/Layout";
-import { posts, type Post } from "@/data/posts";
 
 
-function getPostCount(posts: Post[]) {
-  return posts.length;
-}
 
 export default function Home() {
   return (
@@ -32,26 +28,7 @@ export default function Home() {
   </div>
   </div>
   </div>
-  
-<section id="feed" className="feed-section">
-  <div className="feed-header">
-    <p className="eyebrow">Employee Knowledge</p>
-    <h2>Knowledge Feed</h2>
-    <p>{getPostCount(posts)} posts available</p>
-  </div>
 
-  <div className="feed-list">
-    {posts.map((post) => (
-      <PostCard
-        key={post.id}
-        id={post.id}
-        title={post.title}
-        content={post.content}
-        tag={post.tag}
-      />
-    ))}
-  </div>
-</section>
 
 
   </main>
