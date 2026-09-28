@@ -139,3 +139,23 @@ Day 5 output:
 - Main navigation paths were tested
 - Mobile layout was checked
 - One real UI bug was diagnosed and fixed
+
+
+
+## Day 6 Status
+
+Completed:
+- Reviewed the project file structure
+- Confirmed the application runs locally
+- Reviewed navigation and dynamic Post routes
+- Prepared a Data Flow explanation
+- Prepared a small data modification for demonstration
+- Reviewed the main Components and shared data structure
+- Prepared for a short Week 1 demo
+
+Day 6 output:
+- Code runs locally
+- Run steps are understood
+- Data Flow can be explained
+- Navigation can be explained
+- A small modification can be made and its effect explained
