@@ -121,8 +121,19 @@ p {
   .about-card {
     padding: 32px 24px;
   }
+
+  .back-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
 }
 
+
+
+/*Feed-properties*/
 .feed-section {
   width: 100%;
   max-width: 1100px;
@@ -179,6 +190,8 @@ main {
   padding: 48px 32px 64px;
 }
 
+
+/*Toolbar-properties*/
 .toolbar {
   position: relative;
   top: auto;
@@ -306,6 +319,8 @@ main {
 }
 
 
+
+/*Post-Details-properties*/
 .post-details-page {
   width: 100%;
   display: flex;
@@ -334,5 +349,43 @@ main {
   color: var(--nozom-blue);
   font-weight: 700;
   text-decoration: none;
+}
+
+
+ /*back-to-top-button*/
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--nozom-blue-dark);
+  color: var(--nozom-white);
+
+  font-size: 22px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 8px 24px rgba(10, 53, 127, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.back-to-top:hover {
+  transform: translateY(-2px);
+  background: var(--nozom-blue);
 }
 

@@ -1,4 +1,5 @@
 import Toolbar from "@/components/Toolbar";
+import BackToTop from "@/components/BackToTop";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ export default function Layout({ children }: LayoutProps) {
 
       
       {children}
+      <BackToTop />
     </div>
   );
 }
