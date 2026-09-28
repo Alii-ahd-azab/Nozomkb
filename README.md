@@ -115,3 +115,27 @@ Day 4 output:
 - Sample content is clear
 - Each Post opens its correct details page
 - Layout and Components are organized
+
+
+
+## Day 5 Status
+
+Completed:
+- Tested navigation between About, Feed, and Post Details
+- Tested all 5 Post Details routes
+- Tested invalid Post IDs
+- Tested the interface on mobile
+- Tested empty content behavior
+- Used browser DevTools during debugging
+- Diagnosed and fixed sticky toolbar jump behavior
+
+Debugging example:
+- Problem: the sticky toolbar behaved inconsistently when shrinking and expanding
+- Cause: the toolbar height changed during scrolling and affected layout/scroll behavior
+- Fix: added a fixed-height sticky wrapper around the toolbar
+- Result: the toolbar keeps its animations without causing layout jumps
+
+Day 5 output:
+- Main navigation paths were tested
+- Mobile layout was checked
+- One real UI bug was diagnosed and fixed

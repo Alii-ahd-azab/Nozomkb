@@ -9,7 +9,7 @@ export default function Toolbar() {
 
   useEffect(() => {
     function handleScroll() {
-      setIsScrolled(window.scrollY > 8);
+      setIsScrolled(window.scrollY > 30);
     }
 
     window.addEventListener("scroll", handleScroll);
@@ -22,6 +22,7 @@ export default function Toolbar() {
   }, []);
 
   return (
+   <div className="toolbar-slot">
     <nav
       className={`toolbar ${isScrolled ? "toolbar-scrolled" : ""}`}
       aria-label="Main navigation"
@@ -47,5 +48,6 @@ export default function Toolbar() {
         </div>
       </div>
     </nav>
+  </div>
   );
 }

@@ -180,8 +180,8 @@ main {
 }
 
 .toolbar {
-  position: sticky;
-  top: 0;
+  position: relative;
+  top: auto;
   width: 100%;
   background: linear-gradient(
     90deg,
@@ -194,6 +194,13 @@ main {
   transition:
     padding 0.25s ease,
     box-shadow 0.25s ease;
+}
+
+.toolbar-slot {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 70px;
 }
 
 .toolbar-inner {

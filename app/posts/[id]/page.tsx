@@ -18,7 +18,7 @@ export default async function PostDetailsPage({
     return (
       <main>
         <h1>Post not found</h1>
-        <Link href="/">Back to Feed</Link>
+        <Link href="/feed">Back to Feed</Link>
       </main>
     );
   }
@@ -32,7 +32,7 @@ export default async function PostDetailsPage({
 
         <p>{post.content}</p>
 
-        <Link href="/" className="back-link">
+        <Link href="/feed" className="back-link">
           Back to Feed
         </Link>
       </article>
