@@ -18,3 +18,25 @@ export async function getPosts() {
 
   return result.rows;
 }
+
+export async function getPostById(id: number) {
+  const result = await pool.query(
+    `
+      SELECT
+        posts.id,
+        posts.title,
+        posts.content,
+        COALESCE(MIN(tags.name), '') AS tag
+      FROM posts
+      LEFT JOIN post_tags
+        ON posts.id = post_tags.post_id
+      LEFT JOIN tags
+        ON post_tags.tag_id = tags.id
+      WHERE posts.id = $1
+      GROUP BY posts.id
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+}
