@@ -89,3 +89,38 @@ export async function createPost(
     tag,
   };
 }
+
+
+export async function updatePost(
+  id: number,
+  title: string,
+  content: string
+) {
+  const result = await pool.query(
+    `
+      UPDATE posts
+      SET
+        title = $1,
+        content = $2
+      WHERE id = $3
+      RETURNING *
+    `,
+    [title, content, id]
+  );
+
+  return result.rows[0];
+}
+
+
+export async function deletePost(id: number) {
+  const result = await pool.query(
+    `
+      DELETE FROM posts
+      WHERE id = $1
+      RETURNING *
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+}
