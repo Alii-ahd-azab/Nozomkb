@@ -37,33 +37,64 @@ const [currentPosts, setCurrentPosts] =
   const [selectedTag, setSelectedTag] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+async function handleSubmit(
+  event: React.FormEvent<HTMLFormElement>
+) {
   event.preventDefault();
 
   if (!title.trim() || !content.trim() || !tag.trim()) {
     setError("Please fill in all fields.");
     return;
   }
+
   setError("");
+  setIsSubmitting(true);
 
-const newPost: FeedPost = {
-      id: Date.now(),
-  title: title,
-  content: content,
-  tag: tag,
-  };
+  try {
+    const response = await fetch("/api/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        content,
+        tag,
+        userId: 1,
+      }),
+    });
 
-  setCurrentPosts((previousPosts) => [
-    newPost,
-    ...previousPosts,
-  ]);
+    const data = await response.json();
 
-  setTitle("");
-  setContent("");
-  setTag("");
-  setShowForm(false);
+    if (!response.ok) {
+      setError(data.error || "Failed to create post.");
+      return;
+    }
+
+    const newPost: FeedPost = {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      tag: data.tag,
+    };
+
+    setCurrentPosts((previousPosts) => [
+      newPost,
+      ...previousPosts,
+    ]);
+
+    setTitle("");
+    setContent("");
+    setTag("");
+    setShowForm(false);
+  } catch {
+    setError("Something went wrong while creating the post.");
+  } finally {
+    setIsSubmitting(false);
+  }
 }
 
   const availableTags = [
@@ -182,9 +213,12 @@ const newPost: FeedPost = {
   </option>
 ))}</select>
 
-  <button type="submit">
-    Add Post
-  </button>
+<button
+  type="submit"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Adding..." : "Add Post"}
+</button>
 </form>
 
 )}

@@ -159,3 +159,97 @@ Day 6 output:
 - Data Flow can be explained
 - Navigation can be explained
 - A small modification can be made and its effect explained
+
+
+
+## Week 2 Status
+
+Completed:
+
+- Added React State using `useState`
+- Added interactive Add Post form
+- Added form validation for empty Title, Content, and Tag
+- Added predefined Tag dropdown
+- Added Tag filtering
+- Added title search
+- Added Clear Filters button
+- Added No Results empty state
+- Added collapsible Add New Post / Hide Form behavior
+- Added responsive styling for the new controls and form
+- Kept newly added Posts in temporary React State
+
+Temporary storage behavior:
+
+- New Posts added through the form are stored only in React State
+- They remain available while the current page session is active
+- They disappear after page refresh because they are not yet stored in the database
+
+Key concepts practiced:
+
+- State
+- `useState`
+- Events
+- Forms
+- Validation
+- Conditional rendering
+- Filtering
+- Search
+- Temporary UI state
+
+
+
+
+## Week 3 Status
+
+Completed:
+
+- Designed the PostgreSQL database schema
+- Created tables for:
+  - Departments
+  - Users
+  - Pages
+  - Posts
+  - Tags
+  - Post Tags
+- Added Primary Key and Foreign Key relationships
+- Added many-to-many relationship between Posts and Tags
+- Created database migration files
+- Created Seed data
+- Practiced SQL:
+  - `SELECT`
+  - `INSERT`
+  - `UPDATE`
+  - `JOIN`
+- Connected Next.js to PostgreSQL using `pg`
+- Added database connection using `DATABASE_URL`
+- Split the Feed into Server and Client Components
+- Added `getPosts()` to load Posts from PostgreSQL
+- Added `getPostById()` to load individual Post details from PostgreSQL
+- Moved the project from Supabase PostgreSQL to local PostgreSQL
+- Verified Posts, Users, Pages, Tags, and relationships in pgAdmin
+- Added a second migration for `is_published`
+- Verified database-backed Posts remain after refresh
+
+Current architecture:
+
+- PostgreSQL stores permanent data
+- Server Components read data from PostgreSQL
+- Client Components handle State and user interaction
+- Add Post form still uses temporary React State for now
+
+Key concepts practiced:
+
+- Database Schema
+- Tables
+- Primary Keys
+- Foreign Keys
+- One-to-many relationships
+- Many-to-many relationships
+- Migrations
+- Seed data
+- SQL queries
+- Environment Variables
+- PostgreSQL connection Pool
+- Server Components
+- Client Components
+- Database data vs React State

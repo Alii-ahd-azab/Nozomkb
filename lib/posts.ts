@@ -40,3 +40,52 @@ export async function getPostById(id: number) {
 
   return result.rows[0];
 }
+
+export async function createPost(
+  title: string,
+  content: string,
+  userId: number,
+  tag: string
+) {
+  const result = await pool.query(
+    `
+      INSERT INTO posts (
+        title,
+        content,
+        user_id
+      )
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `,
+    [title, content, userId]
+  );
+
+  const newPost = result.rows[0];
+
+  const tagResult = await pool.query(
+    `
+      SELECT id
+      FROM tags
+      WHERE name = $1
+    `,
+    [tag]
+  );
+
+  if (tagResult.rows[0]) {
+    await pool.query(
+      `
+        INSERT INTO post_tags (
+          post_id,
+          tag_id
+        )
+        VALUES ($1, $2)
+      `,
+      [newPost.id, tagResult.rows[0].id]
+    );
+  }
+
+  return {
+    ...newPost,
+    tag,
+  };
+}
