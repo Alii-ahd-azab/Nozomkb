@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPostById } from "@/lib/posts";
+import PostActions from "@/components/PostActions";
 
 type PostDetailsPageProps = {
   params: Promise<{
@@ -33,6 +34,12 @@ export default async function PostDetailsPage({
         <h1>{post.title}</h1>
 
         <p>{post.content}</p>
+        
+        <PostActions
+        id={post.id}
+        title={post.title}
+        content={post.content}
+        />
 
         <Link href="/feed" className="back-link">
           Back to Feed

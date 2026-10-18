@@ -253,3 +253,54 @@ Key concepts practiced:
 - Server Components
 - Client Components
 - Database data vs React State
+
+
+
+## Week 4 Status
+
+Completed:
+
+- Added CRUD operations for Posts
+- Added API Route Handlers using Next.js
+- Added `GET /api/posts`
+- Added `POST /api/posts`
+- Added `PATCH /api/posts/[id]`
+- Added `DELETE /api/posts/[id]`
+- Connected Add Post form to PostgreSQL through the API
+- Added server-side validation
+- Added Edit Post functionality
+- Added Delete Post functionality with confirmation
+- Added loading, error, and empty states
+- Added loading states for Create, Update, and Delete actions
+- Added HTTP status handling:
+  - `201 Created`
+  - `400 Bad Request`
+  - `404 Not Found`
+- Verified API requests using the browser Network tab
+- Verified server requests using terminal logs
+- Verified Post deletion also removes related `post_tags` rows
+- Added validation for unchanged edits
+- Cleared validation errors when leaving Edit mode
+
+Current CRUD flow:
+
+- Create → Add Post form → `POST /api/posts` → PostgreSQL
+- Read → Server Component → PostgreSQL
+- Update → Edit form → `PATCH /api/posts/[id]` → PostgreSQL
+- Delete → Delete button → `DELETE /api/posts/[id]` → PostgreSQL
+
+Key concepts practiced:
+
+- CRUD
+- API
+- Route Handlers
+- HTTP Methods
+- Requests and Responses
+- JSON
+- HTTP Status Codes
+- Server-side Validation
+- Loading States
+- Error States
+- Empty States
+- API Debugging
+- Database-backed UI
