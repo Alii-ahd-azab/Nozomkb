@@ -1,43 +1,23 @@
-import { canManageFiles } from "@/lib/authz";
-import { deleteFileMetadata, getFileById } from "@/lib/files";
+import { deleteFileMetadata, setFileActive, toFileItem } from "@/lib/files";
 import { removeStoredFiles } from "@/lib/storage";
-import { parseId } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 import { AR } from "@/lib/messages";
-import { getCurrentUser } from "@/lib/current-user";
-import {
-  arForbidden,
-  arNotFound,
-  arServerError,
-  arUnauthorized,
-  resolveReadableParent,
-  type RouteContext,
-} from "@/lib/handlers/parent";
+import { arServerError, type RouteContext } from "@/lib/handlers/parent";
+import { resolveFile } from "@/lib/handlers/file-item";
+import { queueProcessingOrMark } from "@/lib/handlers/files";
 
 // DELETE /api/files/[id] -> same management permission as the parent.
+// Chunks disappear with the row (ON DELETE CASCADE). A Job still waiting in
+// the Queue later finds no File and exits without writing anything.
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
-    if (!(await getCurrentUser())) {
-      return arUnauthorized();
-    }
-
-    const id = parseId((await context.params).id);
-    const file = id === null ? null : await getFileById(id);
-
-    if (!file) {
-      return arNotFound();
-    }
-
-    const resolved = await resolveReadableParent(file.parentKind, file.parentId);
+    const resolved = await resolveFile((await context.params).id, "manage");
 
     if ("response" in resolved) {
       return resolved.response;
     }
 
-    if (!canManageFiles(resolved.user, resolved.parent)) {
-      return arForbidden();
-    }
-
-    const storageKey = await deleteFileMetadata(file.id);
+    const storageKey = await deleteFileMetadata(resolved.file.id);
 
     if (storageKey) {
       await removeStoredFiles([storageKey]);
@@ -46,5 +26,52 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return Response.json({ message: "تم حذف الملف." });
   } catch (error) {
     return arServerError(error, AR.fileDeleteFailed);
+  }
+}
+
+// PATCH /api/files/[id]  body: { "isActive": true | false }
+// Disable = withdraw: hidden from readers and from Search immediately
+// (the File and its Chunks stay stored). Enable = visible again; a File that
+// never finished processing is queued again.
+export async function PATCH(request: Request, context: RouteContext) {
+  try {
+    const resolved = await resolveFile((await context.params).id, "manage");
+
+    if ("response" in resolved) {
+      return resolved.response;
+    }
+
+    let body: unknown;
+
+    try {
+      body = await request.json();
+    } catch {
+      return jsonError(AR.invalidRequest, 400);
+    }
+
+    const keys = body && typeof body === "object" ? Object.keys(body) : [];
+    const isActive = (body as { isActive?: unknown } | null)?.isActive;
+
+    if (keys.length !== 1 || keys[0] !== "isActive" || typeof isActive !== "boolean") {
+      return jsonError(AR.invalidRequest, 400);
+    }
+
+    let updated = await setFileActive(resolved.file.id, isActive);
+
+    if (
+      updated &&
+      isActive &&
+      (updated.status === "pending" || updated.status === "processing")
+    ) {
+      updated = await queueProcessingOrMark(updated.id, updated.version);
+    }
+
+    if (!updated) {
+      return jsonError(AR.notFound, 404);
+    }
+
+    return Response.json(toFileItem(updated));
+  } catch (error) {
+    return arServerError(error, AR.fileUpdateFailed);
   }
 }

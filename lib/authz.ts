@@ -210,13 +210,27 @@ export function canDeleteComment(
 }
 
 // Files
-export function canDownloadFile(user: CurrentUser, parent: ContentParent) {
-  return canReadParent(user, parent);
-}
-
 // Post owner/Admin for Posts; Editor-in-scope/Admin for Official Pages.
 export function canManageFiles(user: CurrentUser, parent: ContentParent) {
   return canManageParent(user, parent);
+}
+
+// Week 7: a disabled (withdrawn) File is hidden from normal readers; only
+// people who manage the parent still see it (status, metadata, download).
+export function canSeeFile(
+  user: CurrentUser,
+  parent: ContentParent,
+  file: { isActive: boolean }
+) {
+  return canReadParent(user, parent) && (file.isActive || canManageFiles(user, parent));
+}
+
+export function canDownloadFile(
+  user: CurrentUser,
+  parent: ContentParent,
+  file: { isActive: boolean }
+) {
+  return canSeeFile(user, parent, file);
 }
 
 // Bookmarks

@@ -111,6 +111,22 @@ export type CommentItem = {
   canEdit: boolean;
 };
 
+// Week 7: background processing of uploaded Files (BullMQ Worker).
+export const FILE_PROCESSING_STATUSES = [
+  "pending",
+  "processing",
+  "ready",
+  "failed",
+] as const;
+export type FileProcessingStatus = (typeof FILE_PROCESSING_STATUSES)[number];
+
+export const FILE_STATUS_LABELS: Record<FileProcessingStatus, string> = {
+  pending: "Pending",
+  processing: "Processing",
+  ready: "Ready",
+  failed: "Failed",
+};
+
 export type FileItem = {
   id: number;
   originalName: string;
@@ -118,6 +134,13 @@ export type FileItem = {
   sizeBytes: number;
   uploaderName: string | null;
   createdAt: string;
+  // Week 7 (never includes the storage key)
+  version: number;
+  status: FileProcessingStatus;
+  // short user-safe message for Failed / retrying Files
+  error: string | null;
+  isActive: boolean;
+  processedAt: string | null;
 };
 
 export type BookmarkItem = {
@@ -137,11 +160,11 @@ export type Profile = {
   specialty: string | null;
 };
 
-export const SEARCH_TYPES = ["all", "page", "post", "comment"] as const;
+export const SEARCH_TYPES = ["all", "page", "post", "comment", "file"] as const;
 export type SearchType = (typeof SEARCH_TYPES)[number];
 
 export type SearchResult = {
-  type: "page" | "post" | "comment";
+  type: "page" | "post" | "comment" | "file";
   id: number;
   title: string;
   snippet: string;
@@ -151,4 +174,11 @@ export type SearchResult = {
   scope: ContentScope;
   departmentName: string | null;
   updatedAt: string;
+  // Only for type "file": the source of a matching File Chunk.
+  file: {
+    id: number;
+    name: string;
+    // null for TXT (one logical page); 1-based for PDF
+    pageNumber: number | null;
+  } | null;
 };

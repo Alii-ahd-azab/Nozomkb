@@ -7,6 +7,7 @@ import { parentColumn } from "@/lib/content-parent";
 import {
   MAX_FILE_SIZE_BYTES,
   type FileItem,
+  type FileProcessingStatus,
   type ParentKind,
 } from "@/lib/definitions";
 import { AR } from "@/lib/messages";
@@ -118,6 +119,11 @@ type FileRow = {
   post_id: string | null;
   page_id: string | null;
   created_at: Date;
+  version: number;
+  processing_status: FileProcessingStatus;
+  processing_error: string | null;
+  is_active: boolean;
+  processed_at: Date | null;
 };
 
 const FILE_SELECT = `
@@ -130,7 +136,12 @@ const FILE_SELECT = `
     users.name AS uploader_name,
     files.post_id,
     files.page_id,
-    files.created_at
+    files.created_at,
+    files.version,
+    files.processing_status,
+    files.processing_error,
+    files.is_active,
+    files.processed_at
   FROM files
   LEFT JOIN users ON users.id = files.uploaded_by
 `;
@@ -146,6 +157,11 @@ function toFile(row: FileRow): FileRecord {
     parentKind: row.post_id !== null ? "post" : "page",
     parentId: Number(row.post_id ?? row.page_id),
     createdAt: row.created_at.toISOString(),
+    version: row.version,
+    status: row.processing_status,
+    error: row.processing_error,
+    isActive: row.is_active,
+    processedAt: row.processed_at ? row.processed_at.toISOString() : null,
   };
 }
 
@@ -158,6 +174,11 @@ export function toFileItem(file: FileRecord): FileItem {
     sizeBytes: file.sizeBytes,
     uploaderName: file.uploaderName,
     createdAt: file.createdAt,
+    version: file.version,
+    status: file.status,
+    error: file.error,
+    isActive: file.isActive,
+    processedAt: file.processedAt,
   };
 }
 
@@ -235,4 +256,111 @@ export async function getStorageKeysForParent(
   );
 
   return result.rows.map((row) => row.storage_key);
+}
+
+// ---------------------------------------------------------------
+// Week 7: processing state, retry, enable/disable, replace (versions)
+// Every write is guarded by the expected version, so an old request or Job
+// can never change a newer File version.
+// ---------------------------------------------------------------
+
+// The Queue could not take the Job (Redis down): keep the File, make the
+// problem visible and retryable.
+export async function markQueueUnavailable(id: number, version: number, message: string) {
+  await pool.query(
+    `
+      UPDATE files
+      SET processing_status = 'failed', processing_error = $3,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 AND version = $2 AND processing_status IN ('pending', 'processing')
+    `,
+    [id, version, message]
+  );
+}
+
+// Failed -> Pending (only an active File, only the current version).
+export async function resetFailedFile(id: number, version: number) {
+  const result = await pool.query(
+    `
+      UPDATE files
+      SET processing_status = 'pending', processing_error = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 AND version = $2 AND is_active
+        AND processing_status = 'failed'
+    `,
+    [id, version]
+  );
+
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function setFileActive(id: number, isActive: boolean) {
+  await pool.query(
+    `UPDATE files SET is_active = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+    [id, isActive]
+  );
+
+  return getFileById(id);
+}
+
+// New content for an existing File: new private disk file, version + 1,
+// back to Pending, and the old version's Chunks are removed in the SAME
+// transaction (Search already ignores them: it only reads the current version).
+export async function replaceFileContent(input: {
+  id: number;
+  originalName: string;
+  storageKey: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedBy: number;
+}) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const locked = await client.query<{ storage_key: string }>(
+      "SELECT storage_key FROM files WHERE id = $1 FOR UPDATE",
+      [input.id]
+    );
+
+    if (!locked.rows[0]) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    const updated = await client.query<{ version: number }>(
+      `
+        UPDATE files
+        SET original_name = $2, storage_key = $3, mime_type = $4,
+            size_bytes = $5, uploaded_by = $6,
+            version = version + 1,
+            processing_status = 'pending', processing_error = NULL,
+            processed_at = NULL, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING version
+      `,
+      [
+        input.id,
+        input.originalName,
+        input.storageKey,
+        input.mimeType,
+        input.sizeBytes,
+        input.uploadedBy,
+      ]
+    );
+
+    await client.query("DELETE FROM file_chunks WHERE file_id = $1", [input.id]);
+    await client.query("COMMIT");
+
+    return {
+      oldStorageKey: locked.rows[0].storage_key,
+      newVersion: updated.rows[0].version,
+    };
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  } finally {
+    client.release();
+  }
 }

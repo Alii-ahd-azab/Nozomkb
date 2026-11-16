@@ -1,4 +1,5 @@
-// User-facing Arabic messages for Week 6 features (client-safe).
+// User-facing Arabic messages for Week 6/7 features (client-safe;
+// also used by the standalone Worker, so no server-only imports here).
 export const AR = {
   notSignedIn: "يجب تسجيل الدخول أولًا.",
   forbidden: "ليست لديك صلاحية لتنفيذ هذا الإجراء.",
@@ -23,6 +24,22 @@ export const AR = {
   uploadFailed: "تعذّر رفع الملف. حاول مرة أخرى.",
   fileUnavailable: "الملف غير متوفر حاليًا.",
   fileDeleteFailed: "تعذّر حذف الملف. حاول مرة أخرى.",
+
+  // Week 7: background processing (Worker)
+  processingQueueUnavailable:
+    "تم حفظ الملف، لكن تعذّر إرسال مهمة المعالجة الآن. استخدم زر إعادة المحاولة لاحقًا.",
+  processingRetrying:
+    "حدث خطأ مؤقت أثناء معالجة الملف. ستتم إعادة المحاولة تلقائيًا.",
+  processingFailed:
+    "فشلت معالجة الملف بعد عدة محاولات. يمكنك إعادة المحاولة.",
+  processingEmptyText: "الملف لا يحتوي على نص قابل للبحث.",
+  processingNoPdfText:
+    "لم يتم العثور على نص قابل للاستخراج في ملف PDF (قد يكون صورة أو مستندًا ممسوحًا ضوئيًا). التعرّف الضوئي على النص (OCR) غير مدعوم.",
+  processingPdfUnreadable: "تعذّر قراءة ملف PDF. قد يكون تالفًا أو محميًا بكلمة مرور.",
+  fileRetryNotAllowed: "يمكن إعادة المحاولة فقط للملفات الفاشلة والمفعّلة.",
+  fileRetryFailed: "تعذّر إعادة إرسال الملف للمعالجة. حاول مرة أخرى لاحقًا.",
+  fileUpdateFailed: "تعذّر تحديث الملف. حاول مرة أخرى.",
+  fileDisabled: "هذا الملف معطّل حاليًا.",
 
   searchQueryRequired: "اكتب كلمة للبحث.",
   searchQueryTooLong: "كلمة البحث طويلة جدًا (100 حرف كحد أقصى).",

@@ -1,43 +1,22 @@
-import { canDownloadFile } from "@/lib/authz";
-import { getFileById } from "@/lib/files";
 import { readStoredFile } from "@/lib/storage";
-import { jsonError, parseId } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 import { AR } from "@/lib/messages";
-import { getCurrentUser } from "@/lib/current-user";
-import {
-  arNotFound,
-  arServerError,
-  arUnauthorized,
-  resolveReadableParent,
-  type RouteContext,
-} from "@/lib/handlers/parent";
+import { arServerError, type RouteContext } from "@/lib/handlers/parent";
+import { resolveFile } from "@/lib/handlers/file-item";
 
 // GET /api/files/[id]/download
 // auth -> file metadata -> parent -> parent READ access -> private disk -> bytes
 // Guessing an ID of a file on an unreadable parent gives 404.
+// Week 7: a disabled (withdrawn) File is only downloadable by its managers.
 export async function GET(_request: Request, context: RouteContext) {
   try {
-    if (!(await getCurrentUser())) {
-      return arUnauthorized();
-    }
-
-    const id = parseId((await context.params).id);
-    const file = id === null ? null : await getFileById(id);
-
-    if (!file) {
-      return arNotFound();
-    }
-
-    const resolved = await resolveReadableParent(file.parentKind, file.parentId);
+    const resolved = await resolveFile((await context.params).id, "see");
 
     if ("response" in resolved) {
       return resolved.response;
     }
 
-    if (!canDownloadFile(resolved.user, resolved.parent)) {
-      return arNotFound();
-    }
-
+    const { file } = resolved;
     const bytes = await readStoredFile(file.storageKey);
 
     if (!bytes) {

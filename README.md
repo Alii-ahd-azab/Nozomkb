@@ -408,3 +408,61 @@ Key concepts practiced:
 - Integration Testing
 - E2E Testing
 - Content Lifecycle
+
+
+
+## Week 7 Status
+
+Completed:
+
+- Added a separate TypeScript Worker (`worker/`, `npm run worker`) that runs outside `next dev`
+- Added a BullMQ / Redis Queue (`nozom-file-processing`, key prefix `nozomkb`) carrying only `{ fileId, version }`
+- Moved processing out of the HTTP request: upload only saves the File and queues a Job
+- Added text extraction: TXT (UTF-8, windows-1256 fallback) and PDF page by page (`unpdf`, no OCR)
+- Added deterministic Chunking (~1200 characters, 150 overlap, never across PDF pages)
+- Stored Chunks with source metadata: File (`file_id`), page, version and position (`chunk_index`)
+- Added processing statuses Pending / Processing / Ready / Failed with safe Arabic error messages
+- Added automatic retries (3 attempts, exponential backoff) and a manual Retry for Failed Files
+- Made processing idempotent: one transaction replaces a version's Chunks + `UNIQUE (file_id, version, chunk_index)`
+- Added File replacement with versions (old Chunks stop being searchable immediately)
+- Added Disable / Enable for Files (withdrawn Files leave Search and are hidden from readers)
+- Extended keyword Search to permitted, current, Ready File Chunks (result shows file, parent and page)
+- Added integration tests with real Redis + real Worker (`npm run test:week7`)
+
+Data flow:
+
+- Upload → Private Storage → PostgreSQL metadata → BullMQ → Redis → Worker → Extract → Chunk → PostgreSQL
+
+Processing:
+
+- Pending → Processing → Ready
+- Processing → error → automatic retry → Ready, or → Failed → manual Retry
+
+Local development:
+
+- Terminal 1: Redis 6.2+ on `127.0.0.1:6379` (set `REDIS_URL` otherwise)
+- Terminal 2: `npm run dev`
+- Terminal 3: `npm run worker:dev`
+- Database: migration `006_add_file_processing_and_chunks.sql`
+
+Notes:
+
+- PostgreSQL keeps the permanent data; Redis only holds Job/Queue state
+- Chunk access always comes from the parent Post/Page (published + readable), like Comments
+- Empty, scanned (image-only) and unreadable PDFs fail visibly as not indexable; OCR is out of scope
+- Embeddings and Semantic Search belong to Week 8
+
+Key concepts practiced:
+
+- Worker
+- Queue
+- Job
+- Redis
+- BullMQ
+- Extraction
+- Chunking
+- Metadata
+- Versions
+- Retries
+- Idempotency
+- HTTP request limits

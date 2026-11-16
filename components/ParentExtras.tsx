@@ -3,7 +3,7 @@
 import BookmarkButton from "@/components/BookmarkButton";
 import CommentsSection from "@/components/CommentsSection";
 import FilesSection from "@/components/FilesSection";
-import { canManageFiles, type ContentParent } from "@/lib/authz";
+import { canManageFiles, canSeeFile, type ContentParent } from "@/lib/authz";
 import { isBookmarked } from "@/lib/bookmarks";
 import { listComments } from "@/lib/comments";
 import { listFiles, toFileItem } from "@/lib/files";
@@ -33,7 +33,10 @@ export default async function ParentExtras({ user, parent }: ParentExtrasProps) 
       <FilesSection
         kind={parent.kind}
         parentId={parent.id}
-        initialFiles={files.map(toFileItem)}
+        initialFiles={files
+          // disabled Files: managers only (Week 7)
+          .filter((file) => canSeeFile(user, parent, file))
+          .map(toFileItem)}
         canManage={canManageFiles(user, parent)}
       />
 

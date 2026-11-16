@@ -20,6 +20,7 @@ const TYPE_LABELS = {
   page: "Official Page",
   post: "Community Post",
   comment: "Comment",
+  file: "File",
 } as const;
 
 // Plain GET form: works without JavaScript, and every result is computed on
@@ -73,7 +74,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="feed-header">
             <p className="eyebrow">Keyword Search</p>
             <h1>Search</h1>
-            <p>Search published Official Pages, Community Posts and Comments you can access.</p>
+            <p>
+              Search published Official Pages, Community Posts, Comments and the text of
+              attached Files you can access.
+            </p>
           </div>
 
           <form className="feed-controls search-form" action="/search" method="get">
@@ -102,6 +106,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <option value="page">Official Pages</option>
                   <option value="post">Community Posts</option>
                   <option value="comment">Comments</option>
+                  <option value="file">Files</option>
                 </select>
               </div>
 
@@ -189,7 +194,28 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                             : result.title}
                         </Link>
                       </h2>
+
+                      {/* Week 7: where the matching File text comes from */}
+                      {result.file && (
+                        <p className="content-meta search-source">
+                          In{" "}
+                          {result.parentKind === "page" ? "Official Page" : "Community Post"}{" "}
+                          “{result.parentTitle}”
+                          {result.file.pageNumber !== null &&
+                            ` · Page ${result.file.pageNumber}`}
+                        </p>
+                      )}
+
                       <p className="card-excerpt">{result.snippet}</p>
+
+                      {result.file && (
+                        <a
+                          href={`/api/files/${result.file.id}/download`}
+                          className="btn btn-secondary btn-sm search-result-action"
+                        >
+                          Download file
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ol>

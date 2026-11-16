@@ -10,15 +10,21 @@
     "typecheck": "tsc --noEmit",
     "test:week5": "node scripts/week5-acceptance.mjs",
     "test:week6": "node scripts/week6-acceptance.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "worker": "tsx worker/index.ts",
+    "worker:dev": "tsx watch --clear-screen=false worker/index.ts",
+    "test:week7": "node scripts/week7-acceptance.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "bullmq": "6.5.3",
+    "ioredis": "5.11.1",
     "next": "^16.4.5",
     "next-auth": "^5.0.0-beta.32",
     "pg": "^8.23.1",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "unpdf": "2.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
@@ -28,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "tsx": "4.23.15",
     "typescript": "^5"
   }
 }

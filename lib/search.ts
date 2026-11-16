@@ -1,4 +1,5 @@
 // Keyword Search (Week 6) — plain PostgreSQL ILIKE, NOT semantic/AI search.
+// Week 7 adds File Chunks (text extracted by the Worker) as result type "file".
 //
 // Query -> authentication -> permission + lifecycle filter -> keyword match
 //       -> filters (type / department / tag) -> pagination (LIMIT/OFFSET)
@@ -113,7 +114,8 @@ const RESULTS_CTE = `
     SELECT
       'page'::text AS type, pg.id, pg.title, pg.content AS body,
       'page'::text AS parent_kind, pg.id AS parent_id, pg.title AS parent_title,
-      pg.scope, d.name AS department_name, pg.updated_at
+      pg.scope, d.name AS department_name, pg.updated_at,
+      NULL::bigint AS file_id, NULL::text AS file_name, NULL::int AS page_number
     FROM pages pg
     LEFT JOIN departments d ON d.id = pg.department_id
     WHERE $4::text IN ('all', 'page')
@@ -127,7 +129,8 @@ const RESULTS_CTE = `
     SELECT
       'post', p.id, p.title, p.content,
       'post', p.id, p.title,
-      p.scope, d.name, p.updated_at
+      p.scope, d.name, p.updated_at,
+      NULL, NULL, NULL
     FROM posts p
     LEFT JOIN departments d ON d.id = p.department_id
     WHERE $4::text IN ('all', 'post')
@@ -146,7 +149,8 @@ const RESULTS_CTE = `
       COALESCE(p.title, pg.title),
       COALESCE(p.scope, pg.scope),
       d.name,
-      c.updated_at
+      c.updated_at,
+      NULL, NULL, NULL
     FROM comments c
     LEFT JOIN posts p ON p.id = c.post_id
     LEFT JOIN pages pg ON pg.id = c.page_id
@@ -158,6 +162,42 @@ const RESULTS_CTE = `
       )
       AND ($6::text IS NULL OR (p.id IS NOT NULL AND ${POST_HAS_TAG}))
       AND c.content ILIKE $1 ESCAPE '\\'
+
+    UNION ALL
+
+    -- Week 7: a File Chunk is searchable only if the File is active and
+    -- Ready, the Chunk belongs to the File's CURRENT version (so a replaced
+    -- File's old text is never served), and the PARENT is published +
+    -- readable — exactly the Comment rule. One hit per File page.
+    SELECT * FROM (
+      SELECT DISTINCT ON (fc.file_id, fc.page_number)
+        'file', fc.id, f.original_name, fc.text,
+        CASE WHEN f.post_id IS NOT NULL THEN 'post' ELSE 'page' END,
+        COALESCE(f.post_id, f.page_id),
+        COALESCE(p.title, pg.title),
+        COALESCE(p.scope, pg.scope),
+        d.name,
+        f.updated_at,
+        f.id,
+        f.original_name,
+        -- TXT is one logical page: no page number shown
+        CASE WHEN f.mime_type = 'application/pdf' THEN fc.page_number END
+      FROM file_chunks fc
+      JOIN files f ON f.id = fc.file_id AND fc.version = f.version
+      LEFT JOIN posts p ON p.id = f.post_id
+      LEFT JOIN pages pg ON pg.id = f.page_id
+      LEFT JOIN departments d ON d.id = COALESCE(p.department_id, pg.department_id)
+      WHERE $4::text IN ('all', 'file')
+        AND f.is_active
+        AND f.processing_status = 'ready'
+        AND (
+          (p.id IS NOT NULL AND ${POST_ACCESS} AND ${departmentFilter("p")})
+          OR (pg.id IS NOT NULL AND ${PAGE_ACCESS} AND ${departmentFilter("pg")})
+        )
+        AND ($6::text IS NULL OR (p.id IS NOT NULL AND ${POST_HAS_TAG}))
+        AND fc.text ILIKE $1 ESCAPE '\\'
+      ORDER BY fc.file_id, fc.page_number, fc.chunk_index
+    ) AS file_hits
   )
 `;
 
@@ -172,6 +212,9 @@ type ResultRow = {
   scope: ContentScope;
   department_name: string | null;
   updated_at: Date;
+  file_id: string | null;
+  file_name: string | null;
+  page_number: number | null;
 };
 
 // Short excerpt around the first match.
@@ -224,6 +267,14 @@ export async function searchContent(user: CurrentUser, params: SearchParams) {
     scope: row.scope,
     departmentName: row.department_name,
     updatedAt: row.updated_at.toISOString(),
+    file:
+      row.type === "file" && row.file_id !== null
+        ? {
+            id: Number(row.file_id),
+            name: row.file_name ?? row.title ?? "",
+            pageNumber: row.page_number,
+          }
+        : null,
   }));
 
   return {

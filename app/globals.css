@@ -1161,9 +1161,6 @@ input[type="file"]::file-selector-button:hover {
 
 /* ---------- Files ---------- */
 .file-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
   padding: 12px 14px;
   border: 1px solid var(--nozom-border);
   border-radius: var(--nozom-radius);
@@ -1173,6 +1170,110 @@ input[type="file"]::file-selector-button:hover {
 
 .file-item:hover {
   border-color: #b9cbe8;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.file-item.is-disabled {
+  background: var(--nozom-surface-muted);
+  border-style: dashed;
+}
+
+.file-item.is-disabled .file-icon,
+.file-item.is-disabled .file-link {
+  opacity: 0.6;
+}
+
+.file-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Week 7 processing states: Pending / Processing / Ready / Failed / Disabled */
+.badge-processing-pending {
+  background: var(--nozom-warning-soft);
+  border-color: var(--nozom-warning-border);
+  color: var(--nozom-warning);
+}
+
+.badge-processing-processing {
+  background: var(--nozom-primary-soft);
+  border-color: #c7dafc;
+  color: var(--nozom-blue-dark);
+}
+
+.badge-processing-processing::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: nozom-spin 0.8s linear infinite;
+}
+
+.badge-processing-ready {
+  background: var(--nozom-success-soft);
+  border-color: var(--nozom-success-border);
+  color: var(--nozom-success);
+}
+
+.badge-processing-failed {
+  background: var(--nozom-danger-soft);
+  border-color: var(--nozom-danger-border);
+  color: var(--nozom-danger);
+}
+
+.badge-file-disabled {
+  background: var(--nozom-neutral-soft);
+  border-color: var(--nozom-neutral-border);
+  color: var(--nozom-neutral);
+}
+
+@keyframes nozom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-processing-processing::before {
+    animation: none;
+  }
+}
+
+.file-processing-error {
+  margin: 10px 0 0;
+  max-width: none;
+  padding: 8px 12px;
+  border-radius: var(--nozom-radius-sm);
+  background: var(--nozom-danger-soft);
+  color: var(--nozom-danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.file-replace-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed var(--nozom-border-strong);
+  border-radius: var(--nozom-radius-sm);
+  background: var(--nozom-surface-muted);
+}
+
+.file-replace-form label {
+  font-size: 14px;
+  font-weight: 650;
 }
 
 .file-icon {
@@ -1259,6 +1360,23 @@ input[type="file"]::file-selector-button:hover {
 
 .search-result:has(a:focus-visible) {
   box-shadow: var(--nozom-focus-ring);
+}
+
+/* File results: the source line + a real download link above the card overlay */
+.search-source {
+  margin: 0 0 4px;
+}
+
+.search-result-action {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+}
+
+.badge-type-file {
+  background: var(--nozom-surface);
+  border-color: var(--nozom-border-strong);
+  color: var(--nozom-blue-dark);
 }
 
 .search-result h2 a:focus-visible {
@@ -1446,7 +1564,7 @@ input[type="file"]::file-selector-button:hover {
     grid-template-columns: 1fr;
   }
 
-  .file-item {
+  .file-row {
     flex-wrap: wrap;
   }
 
