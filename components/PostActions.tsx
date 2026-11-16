@@ -2,23 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { ContentScope, ContentStatus } from "@/lib/definitions";
 
 type PostActionsProps = {
   id: number;
   title: string;
   content: string;
+  status: ContentStatus;
+  scope: ContentScope;
+  departmentLabel: string | null;
 };
 
 export default function PostActions({
   id,
   title,
   content,
+  status,
+  scope,
+  departmentLabel,
 }: PostActionsProps) {
   const router = useRouter();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const [editedContent, setEditedContent] = useState(content);
+  const [editedStatus, setEditedStatus] = useState<ContentStatus>(status);
+  const [editedScope, setEditedScope] = useState<ContentScope>(scope);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -37,7 +46,9 @@ async function handleUpdate(
 
   if (
   editedTitle.trim() === title.trim() &&
-  editedContent.trim() === content.trim()
+  editedContent.trim() === content.trim() &&
+  editedStatus === status &&
+  editedScope === scope
 ) {
   setError("No changes were made.");
   return;
@@ -55,6 +66,8 @@ async function handleUpdate(
       body: JSON.stringify({
         title: editedTitle,
         content: editedContent,
+        status: editedStatus,
+        scope: editedScope,
       }),
     });
 
@@ -136,6 +149,37 @@ async function handleDelete() {
           setEditedContent(event.target.value)
         }
       />
+
+      <label>
+        Status
+        <select
+          value={editedStatus}
+          onChange={(event) =>
+            setEditedStatus(event.target.value as ContentStatus)
+          }
+        >
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="archived">Archived</option>
+        </select>
+      </label>
+
+      <label>
+        Who can read it?
+        <select
+          value={editedScope}
+          onChange={(event) =>
+            setEditedScope(event.target.value as ContentScope)
+          }
+        >
+          <option value="company">Whole company</option>
+          {departmentLabel && (
+            <option value="department">
+              Only {departmentLabel}
+            </option>
+          )}
+        </select>
+      </label>
 
       <button
   type="submit"

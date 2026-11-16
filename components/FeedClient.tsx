@@ -2,39 +2,41 @@
 
 import { useState } from "react";
 import PostCard from "@/components/PostCard";
-
-
-
-type FeedPost = {
-  id: number;
-  title: string;
-  content: string;
-  tag: string;
-};
+import type {
+  ContentScope,
+  ContentStatus,
+  Post,
+} from "@/lib/definitions";
 
 type FeedClientProps = {
-  initialPosts: FeedPost[];
+  initialPosts: Post[];
+  userDepartmentName: string | null;
 };
 
+type StatusFilter = "active" | ContentStatus;
 
-
-function getPostCount(posts: FeedPost[]) {
+function getPostCount(posts: Post[]) {
     return posts.length;
 }
 
 
 export default function FeedClient({
   initialPosts,
+  userDepartmentName,
 }: FeedClientProps) {
 
 const [currentPosts, setCurrentPosts] =
-  useState<FeedPost[]>(initialPosts);
+  useState<Post[]>(initialPosts);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tag, setTag] = useState("");
+  const [scope, setScope] = useState<ContentScope>("company");
+  const [status, setStatus] = useState<ContentStatus>("published");
   const [error, setError] = useState("");
   const [selectedTag, setSelectedTag] = useState("All");
+  const [selectedStatus, setSelectedStatus] =
+    useState<StatusFilter>("active");
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,6 +56,7 @@ async function handleSubmit(
   setIsSubmitting(true);
 
   try {
+    // No userId here: the server takes the author from the signed-in session.
     const response = await fetch("/api/posts", {
       method: "POST",
       headers: {
@@ -63,7 +66,8 @@ async function handleSubmit(
         title,
         content,
         tag,
-        userId: 1,
+        scope,
+        status,
       }),
     });
 
@@ -74,21 +78,16 @@ async function handleSubmit(
       return;
     }
 
-    const newPost: FeedPost = {
-      id: data.id,
-      title: data.title,
-      content: data.content,
-      tag: data.tag,
-    };
-
     setCurrentPosts((previousPosts) => [
-      newPost,
+      data as Post,
       ...previousPosts,
     ]);
 
     setTitle("");
     setContent("");
     setTag("");
+    setScope("company");
+    setStatus("published");
     setShowForm(false);
   } catch {
     setError("Something went wrong while creating the post.");
@@ -99,7 +98,9 @@ async function handleSubmit(
 
   const availableTags = [
   "All",
-  ...Array.from(new Set(currentPosts.map((post) => post.tag))),
+  ...Array.from(
+    new Set(currentPosts.map((post) => post.tag).filter(Boolean))
+  ),
 ];
 
   const postTagOptions = [
@@ -118,12 +119,19 @@ async function handleSubmit(
     .toLowerCase()
     .includes(searchTerm.toLowerCase());
 
-  return matchesTag && matchesSearch;
+  // "Active" hides archived content. Normal readers never receive other
+  // people's drafts/archived posts from the server in the first place.
+  const matchesStatus =
+    selectedStatus === "active"
+      ? post.status !== "archived"
+      : post.status === selectedStatus;
+
+  return matchesTag && matchesSearch && matchesStatus;
 });
 
 
   return (
-    
+
         <section className="feed-section">
           <div className="feed-header">
             <p className="eyebrow">Employee Knowledge</p>
@@ -145,6 +153,21 @@ async function handleSubmit(
   </option>
 ))}  </select>
 
+  <label htmlFor="status-filter">Status</label>
+
+  <select
+    id="status-filter"
+    value={selectedStatus}
+    onChange={(event) =>
+      setSelectedStatus(event.target.value as StatusFilter)
+    }
+  >
+    <option value="active">Active</option>
+    <option value="published">Published</option>
+    <option value="draft">My drafts</option>
+    <option value="archived">Archived (managed)</option>
+  </select>
+
   <label htmlFor="post-search">Search by title</label>
 
 <input
@@ -159,6 +182,7 @@ async function handleSubmit(
   type="button"
   onClick={() => {
     setSelectedTag("All");
+    setSelectedStatus("active");
     setSearchTerm("");
   }}
 >
@@ -177,11 +201,11 @@ async function handleSubmit(
 </div>
 
 {showForm && (
-    <form 
+    <form
     className="post-form"
    onSubmit={handleSubmit}
           >
-  <h2>Add a Post</h2>
+  <h2>Add a Community Post</h2>
   {error && (
   <p className="form-error">
     {error}
@@ -213,6 +237,30 @@ async function handleSubmit(
   </option>
 ))}</select>
 
+  <label htmlFor="post-scope">Who can read it?</label>
+  <select
+    id="post-scope"
+    value={scope}
+    onChange={(event) => setScope(event.target.value as ContentScope)}
+  >
+    <option value="company">Whole company</option>
+    {userDepartmentName && (
+      <option value="department">
+        Only my department ({userDepartmentName})
+      </option>
+    )}
+  </select>
+
+  <label htmlFor="post-status">Status</label>
+  <select
+    id="post-status"
+    value={status}
+    onChange={(event) => setStatus(event.target.value as ContentStatus)}
+  >
+    <option value="published">Publish now</option>
+    <option value="draft">Save as draft</option>
+  </select>
+
 <button
   type="submit"
   disabled={isSubmitting}
@@ -231,6 +279,10 @@ async function handleSubmit(
         title={post.title}
         content={post.content}
         tag={post.tag}
+        status={post.status}
+        scope={post.scope}
+        departmentName={post.departmentName}
+        authorName={post.authorName}
       />
     ))
   ) : (

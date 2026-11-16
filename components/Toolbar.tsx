@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { logout } from "@/app/actions/auth";
+import type { DisplayUser } from "@/lib/definitions";
 
-export default function Toolbar() {
+type ToolbarProps = {
+  user: DisplayUser | null;
+};
+
+export default function Toolbar({ user }: ToolbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -45,6 +51,27 @@ export default function Toolbar() {
         <div className="toolbar-links">
           <Link href="/">About</Link>
           <Link href="/feed">Knowledge Feed</Link>
+          <Link href="/official">Official Pages</Link>
+
+          {user ? (
+            <div className="toolbar-user">
+              <span className="toolbar-user-name">
+                {user.name}
+                <small>
+                  {user.role}
+                  {user.departmentName ? ` · ${user.departmentName}` : ""}
+                </small>
+              </span>
+
+              <form action={logout}>
+                <button type="submit" className="toolbar-logout">
+                  Log out
+                </button>
+              </form>
+            </div>
+          ) : (
+            <Link href="/login">Sign in</Link>
+          )}
         </div>
       </div>
     </nav>

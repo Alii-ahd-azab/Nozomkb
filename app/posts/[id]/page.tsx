@@ -1,6 +1,12 @@
 import Link from "next/link";
-import { getPostById } from "@/lib/posts";
+import { notFound } from "next/navigation";
+import Layout from "@/components/Layout";
+import ContentBadges from "@/components/ContentBadges";
 import PostActions from "@/components/PostActions";
+import { requireUser } from "@/lib/current-user";
+import { canEditPost, canReadPost } from "@/lib/authz";
+import { getPostById } from "@/lib/posts";
+import { parseId } from "@/lib/api";
 
 type PostDetailsPageProps = {
   params: Promise<{
@@ -10,41 +16,65 @@ type PostDetailsPageProps = {
 
 export default async function PostDetailsPage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: PostDetailsPageProps) {
   const { id } = await params;
 
-  const post = await getPostById(Number(id));
+  const user = await requireUser(`/posts/${id}`);
 
-  if (!post) {
-    return (
-      <main>
-        <h1>Post not found</h1>
-        <Link href="/feed">Back to Feed</Link>
-      </main>
-    );
+  const postId = parseId(id);
+  const post = postId === null ? null : await getPostById(postId);
+
+  // Typing the URL directly gets the same server check as normal navigation.
+  // Missing and forbidden posts look the same (404) so nothing is revealed.
+  if (!post || !canReadPost(user, post)) {
+    notFound();
   }
 
+  const canManage = canEditPost(user, post);
+
   return (
-    <main className="post-details-page">
-      <article className="post-details-card">
-        <span className="post-tag">{post.tag}</span>
+    <Layout>
+      <main className="post-details-page">
+        <article className="post-details-card">
+          <ContentBadges
+            kind="community"
+            status={post.status}
+            scope={post.scope}
+            departmentName={post.departmentName}
+          />
 
-        <h1>{post.title}</h1>
+          {post.tag && <span className="post-tag">{post.tag}</span>}
 
-        <p>{post.content}</p>
-        
-        <PostActions
-        id={post.id}
-        title={post.title}
-        content={post.content}
-        />
+          <h1>{post.title}</h1>
 
-        <Link href="/feed" className="back-link">
-          Back to Feed
-        </Link>
-      </article>
-    </main>
+          <p className="content-meta">
+            By {post.authorName ?? "Unknown author"} · Updated{" "}
+            {new Date(post.updatedAt).toLocaleString("en-GB")}
+          </p>
+
+          <p>{post.content}</p>
+
+          {/* UX only: the API checks ownership again on every request. */}
+          {canManage && (
+            <PostActions
+              id={post.id}
+              title={post.title}
+              content={post.content}
+              status={post.status}
+              scope={post.scope}
+              departmentLabel={
+                post.authorId === user.id
+                  ? user.departmentName
+                  : "the author's department"
+              }
+            />
+          )}
+
+          <Link href="/feed" className="back-link">
+            Back to Feed
+          </Link>
+        </article>
+      </main>
+    </Layout>
   );
 }

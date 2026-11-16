@@ -304,3 +304,60 @@ Key concepts practiced:
 - Empty States
 - API Debugging
 - Database-backed UI
+
+
+## Week 5 Status
+
+Completed:
+
+- Added Auth.js authentication using Credentials
+- Added bcrypt password verification
+- Added login and logout
+- Added authenticated sessions
+- Added Admin / Editor / Member roles
+- Added server-side RBAC
+- Added Post ownership checks
+- Removed hard-coded `userId` from Post creation
+- Added company-wide and department-restricted content scopes
+- Added Draft / Published / Archived lifecycle
+- Added Official Pages vs Community Posts
+- Added server-side authorization for direct URLs and API requests
+- Added role / ownership / department authorization helpers (`lib/authz.ts`)
+- Added protected Official Page functionality
+- Added test users for Admin, Editor and Members
+- Added Week 5 acceptance test script (`npm run test:week5`)
+- Verified secrets stay server-side
+- Verified all required Week 5 scenarios pass
+
+Current authentication flow:
+
+- Login → Auth.js → PostgreSQL user lookup → bcrypt password verification → session → authenticated requests
+
+Current authorization flow:
+
+- Request → Authentication → Current User → Role → Ownership → Department Scope → Lifecycle → Allow / Deny → PostgreSQL
+
+Notes:
+
+- Database: local PostgreSQL accessed through `pg` and managed with pgAdmin
+- PostgreSQL RLS is not used for application authorization
+- Authorization is enforced in the Next.js server layer
+- No public signup exists; accounts are provisioned internally
+- Local setup: migrations `001`–`004` + `database/seed.sql` (see `.env.example` for required variables)
+- Comments, Files, Bookmarks and advanced Search belong to Week 6
+
+Key concepts practiced:
+
+- Authentication
+- Authorization
+- Sessions
+- Credentials
+- Password hashing
+- RBAC
+- Ownership
+- Content Scope
+- Server-side authorization
+- Environment Variables / Secrets
+- Content lifecycle
+- Official vs Community content
+- 401 / 403 / 404 authorization behavior
