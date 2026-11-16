@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Layout from "@/components/Layout";
 import ContentBadges from "@/components/ContentBadges";
 import PostActions from "@/components/PostActions";
+import ParentExtras from "@/components/ParentExtras";
 import { requireUser } from "@/lib/current-user";
 import { canEditPost, canReadPost } from "@/lib/authz";
 import { getPostById } from "@/lib/posts";
@@ -69,6 +70,8 @@ export default async function PostDetailsPage({
               }
             />
           )}
+
+          <ParentExtras user={user} parent={{ ...post, kind: "post" }} />
 
           <Link href="/feed" className="back-link">
             Back to Feed

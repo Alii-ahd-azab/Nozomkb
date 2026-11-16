@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:week5": "node scripts/week5-acceptance.mjs"
+    "test:week5": "node scripts/week5-acceptance.mjs",
+    "test:week6": "node scripts/week6-acceptance.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -19,6 +21,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",

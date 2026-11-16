@@ -361,3 +361,50 @@ Key concepts practiced:
 - Content lifecycle
 - Official vs Community content
 - 401 / 403 / 404 authorization behavior
+
+
+
+## Week 6 Status
+
+Completed:
+
+- Added Comments on Community Posts and Official Pages (author edits/deletes own; Admin moderates)
+- Finished Tags (tag options loaded from the database; Tag filter in Search)
+- Added private Bookmarks with a `/bookmarks` page (duplicates prevented, access re-checked)
+- Added a simple employee Profile (`/profile`); only specialty is editable
+- Added private PDF/TXT uploads stored in `storage/private/` (outside `public/`)
+- Added server-side file validation: extension + MIME allowlist, real size ≤ 10 MB, PDF signature, binary TXT check
+- Added private downloads through an authorized route (files inherit the parent's access)
+- Added keyword Search (`/search`) across Official Pages, Community Posts and Comments
+- Added Type / Department / Tag filters and server-side pagination (20 per page)
+- Added lifecycle-aware Search: only published content the user may read
+- Added empty states and Arabic error messages for Week 6 features
+- Added Integration tests (`npm run test:week6`) and a Playwright E2E test (`npm run test:e2e`)
+
+Current Week 6 flow:
+
+- Login → Post → Comment → Bookmark → File Upload → Search → Result
+
+File flow:
+
+- Upload → server validation → private storage → database metadata → authorized download route
+
+Search flow:
+
+- Query → authentication → permission/lifecycle filtering → keyword matching → filters → pagination → results
+
+Notes:
+
+- Comments, Files and Bookmarks have no scope/status of their own: access = parent Post/Page access (`lib/authz.ts`)
+- Local setup: migration `005` + `database/seed.sql` (existing databases: `database/dev/week6_upgrade_existing_local_data.sql`)
+- File processing, Chunking, Workers and Semantic Search belong to Weeks 7–8
+
+Key concepts practiced:
+
+- File Upload Validation
+- Private Storage
+- Pagination
+- Keyword Search
+- Integration Testing
+- E2E Testing
+- Content Lifecycle

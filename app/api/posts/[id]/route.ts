@@ -6,6 +6,8 @@ import {
   getUserDepartmentId,
   updatePost,
 } from "@/lib/posts";
+import { getStorageKeysForParent } from "@/lib/files";
+import { removeStoredFiles } from "@/lib/storage";
 import {
   forbidden,
   isBadInputDatabaseError,
@@ -147,11 +149,16 @@ export async function DELETE(_request: Request, context: RouteContext) {
       return forbidden();
     }
 
+    // Comments, bookmarks, tags and file rows cascade in PostgreSQL;
+    // the private files on disk are removed here.
+    const storageKeys = await getStorageKeysForParent("post", loaded.post.id);
     const deleted = await deletePost(loaded.post.id);
 
     if (!deleted) {
       return notFound("Post");
     }
+
+    await removeStoredFiles(storageKeys);
 
     return Response.json({
       message: "Post deleted successfully.",

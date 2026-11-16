@@ -76,3 +76,79 @@ export type OfficialPage = {
   createdAt: string;
   updatedAt: string;
 };
+
+// ---------------------------------------------------------------
+// Week 6
+// ---------------------------------------------------------------
+
+// Parent content that Comments, Files and Bookmarks attach to.
+export const PARENT_KINDS = ["post", "page"] as const;
+export type ParentKind = (typeof PARENT_KINDS)[number];
+
+export function isParentKind(value: unknown): value is ParentKind {
+  return PARENT_KINDS.includes(value as ParentKind);
+}
+
+export function parentHref(kind: ParentKind, id: number) {
+  return kind === "post" ? `/posts/${id}` : `/official/${id}`;
+}
+
+export const COMMENT_MAX_LENGTH = 2000;
+export const SPECIALTY_MAX_LENGTH = 100;
+
+// 10 MB = 10 * 1024 * 1024 bytes (enforced again on the server).
+export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+export const ALLOWED_FILE_EXTENSIONS = [".pdf", ".txt"] as const;
+
+export type CommentItem = {
+  id: number;
+  content: string;
+  authorId: number;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+  // computed on the server for this viewer (UX only; the API re-checks)
+  canEdit: boolean;
+};
+
+export type FileItem = {
+  id: number;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploaderName: string | null;
+  createdAt: string;
+};
+
+export type BookmarkItem = {
+  kind: ParentKind;
+  id: number;
+  title: string;
+  scope: ContentScope;
+  departmentName: string | null;
+  createdAt: string;
+};
+
+export type Profile = {
+  name: string;
+  email: string;
+  role: Role;
+  departmentName: string | null;
+  specialty: string | null;
+};
+
+export const SEARCH_TYPES = ["all", "page", "post", "comment"] as const;
+export type SearchType = (typeof SEARCH_TYPES)[number];
+
+export type SearchResult = {
+  type: "page" | "post" | "comment";
+  id: number;
+  title: string;
+  snippet: string;
+  parentKind: ParentKind;
+  parentId: number;
+  parentTitle: string;
+  scope: ContentScope;
+  departmentName: string | null;
+  updatedAt: string;
+};

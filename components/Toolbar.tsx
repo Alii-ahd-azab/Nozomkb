@@ -54,6 +54,10 @@ export default function Toolbar({ user }: ToolbarProps) {
           <Link href="/official">Official Pages</Link>
 
           {user ? (
+            <>
+              <Link href="/search">Search</Link>
+              <Link href="/bookmarks">Bookmarks</Link>
+              <Link href="/profile">Profile</Link>
             <div className="toolbar-user">
               <span className="toolbar-user-name">
                 {user.name}
@@ -69,6 +73,7 @@ export default function Toolbar({ user }: ToolbarProps) {
                 </button>
               </form>
             </div>
+            </>
           ) : (
             <Link href="/login">Sign in</Link>
           )}

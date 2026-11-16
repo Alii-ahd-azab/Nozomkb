@@ -654,3 +654,191 @@ main {
     display: none;
   }
 }
+
+
+/* Week 6: comments, files, bookmarks, search, profile */
+.detail-section {
+  margin: 28px 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(15, 76, 189, 0.12);
+}
+
+.detail-section h2 {
+  margin-bottom: 12px;
+  font-size: 20px;
+}
+
+.empty-state {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--nozom-background);
+  color: var(--nozom-muted);
+}
+
+.comment-list,
+.file-list,
+.search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-item,
+.file-item {
+  padding: 12px 14px;
+  border: 1px solid #e4e9f2;
+  border-radius: 12px;
+  background: var(--nozom-white);
+}
+
+.post-details-card .comment-text {
+  margin: 4px 0 8px;
+  white-space: pre-wrap;
+}
+
+.post-details-card .content-meta {
+  margin-bottom: 4px;
+}
+
+.file-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.file-link {
+  color: var(--nozom-blue);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.comment-form,
+.file-upload-form,
+.comment-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.comment-form label,
+.file-upload-form label {
+  font-weight: 600;
+}
+
+.comment-form textarea,
+.comment-edit textarea {
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid #cfd8e6;
+  border-radius: 10px;
+  font: inherit;
+  resize: vertical;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-section button,
+.bookmark-button {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border: 1px solid var(--nozom-blue);
+  border-radius: 10px;
+  background: var(--nozom-white);
+  color: var(--nozom-blue);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.detail-section button[type="submit"],
+.bookmark-button.is-bookmarked {
+  background: var(--nozom-blue);
+  color: var(--nozom-white);
+}
+
+.bookmark-control {
+  margin: 8px 0 4px;
+}
+
+.search-form button {
+  background: var(--nozom-blue);
+  color: var(--nozom-white);
+}
+
+.search-summary {
+  margin-bottom: 12px;
+}
+
+.search-result h2 a {
+  color: var(--nozom-text);
+  text-decoration: none;
+}
+
+.search-result h2 a:hover {
+  color: var(--nozom-blue);
+}
+
+.badge-type-page {
+  background: var(--nozom-blue-dark);
+  color: var(--nozom-white);
+}
+
+.badge-type-post {
+  background: #ecfdf3;
+  color: #067647;
+  border-color: #abefc6;
+}
+
+.badge-type-comment {
+  background: #f4f3ff;
+  color: #5925dc;
+  border-color: #d9d6fe;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  font-weight: 600;
+}
+
+.pagination a {
+  color: var(--nozom-blue);
+}
+
+.profile-card {
+  max-width: 640px;
+}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 16px 0;
+}
+
+.profile-fields dt {
+  font-weight: 700;
+}
+
+.profile-fields dd {
+  margin: 0;
+}
+
+.form-success {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #067647;
+  font-weight: 600;
+}

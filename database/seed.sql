@@ -97,3 +97,28 @@ VALUES
   (4, 2),
   (5, 1),
   (6, 1);
+
+-- ---------------------------------------------------------------
+-- Week 6 demo data (run after migration 005)
+-- ---------------------------------------------------------------
+
+-- "Projects" was offered by the Feed form but never existed as a tag.
+INSERT INTO tags (name) VALUES ('Projects');
+
+UPDATE users SET specialty = 'Network support' WHERE email = 'ali@nozom.local';
+UPDATE users SET specialty = 'Payroll' WHERE email = 'ahmed@nozom.local';
+UPDATE users SET specialty = 'Financial reporting' WHERE email = 'mona@nozom.local';
+UPDATE users SET specialty = 'Platform administration' WHERE email = 'admin@nozom.local';
+
+INSERT INTO comments (content, user_id, post_id, page_id)
+VALUES
+  -- on a company-wide published Post
+  ('Remember to add the request in the HR system as well.', 2, 2, NULL),
+  -- on an HR-only Post (hidden from other departments, also in Search)
+  ('Payroll cut-off for December moves to the 18th.', 2, 4, NULL),
+  -- on a Draft Post (never appears in Search)
+  ('Draft note: add screenshots of the VPN client.', 1, 5, NULL),
+  -- on a published Official Page
+  ('Onboarding checklist was reviewed this quarter.', 3, NULL, 1);
+
+INSERT INTO bookmarks (user_id, page_id) VALUES (1, 1);

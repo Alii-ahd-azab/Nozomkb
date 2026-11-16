@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Layout from "@/components/Layout";
 import ContentBadges from "@/components/ContentBadges";
 import OfficialPageForm from "@/components/OfficialPageForm";
+import ParentExtras from "@/components/ParentExtras";
 import { requireUser } from "@/lib/current-user";
 import {
   canManageOfficialPage,
@@ -64,6 +65,8 @@ export default async function OfficialPageDetails({
               userDepartmentName={user.departmentName}
             />
           )}
+
+          <ParentExtras user={user} parent={{ ...page, kind: "page" }} />
 
           <Link href="/official" className="back-link">
             Back to Official Pages

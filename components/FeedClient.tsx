@@ -11,6 +11,8 @@ import type {
 type FeedClientProps = {
   initialPosts: Post[];
   userDepartmentName: string | null;
+  // Loaded from the tags table, so every option really exists.
+  tagOptions: string[];
 };
 
 type StatusFilter = "active" | ContentStatus;
@@ -23,6 +25,7 @@ function getPostCount(posts: Post[]) {
 export default function FeedClient({
   initialPosts,
   userDepartmentName,
+  tagOptions,
 }: FeedClientProps) {
 
 const [currentPosts, setCurrentPosts] =
@@ -103,13 +106,7 @@ async function handleSubmit(
   ),
 ];
 
-  const postTagOptions = [
-  "Work Process",
-  "Accounting",
-  "HR",
-  "Projects",
-  "IT",
-];
+  const postTagOptions = tagOptions;
 
   const filteredPosts = currentPosts.filter((post) => {
   const matchesTag =

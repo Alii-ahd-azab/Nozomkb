@@ -41,3 +41,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 supabase_backup.sql
+
+# private uploaded files (Week 6) — never commit user uploads
+/storage/private/*
+!/storage/private/.gitkeep
+/test-results/
+/playwright-report/

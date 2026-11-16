@@ -6,9 +6,9 @@
 //
 // Rule order:  authenticated user -> role -> ownership -> department scope -> lifecycle
 //
-// Future Week 6 Comments/Files must NOT invent their own rules: they inherit
+// Comments, Files and Bookmarks (Week 6) do NOT have their own rules: they inherit
 // access from their parent by calling canReadPost / canReadOfficialPage on the
-// parent Post/Page (see canAccessChildOf below).
+// parent Post/Page (see canReadParent / canManageParent below).
 
 import type {
   ContentScope,
@@ -154,13 +154,74 @@ export function canReadOfficialPage(
 }
 
 // ---------------------------------------------------------------
-// Future child content (Week 6 Comments / Files)
+// Child content (Week 6): Comments, Files, Bookmarks
+//
+// They have NO rules of their own. Every decision is derived from the
+// parent Post / Official Page, using the functions above:
+//   Comment access   = parent access
+//   File download    = parent read access
+//   File upload/del. = parent management access
+//   Bookmark target  = parent read access
 // ---------------------------------------------------------------
 
-// A child item is readable exactly when its parent is readable.
-// Example (Week 6): canAccessChildOf(canReadPost(user, parentPost))
-export function canAccessChildOf(parentIsReadable: boolean) {
-  return parentIsReadable;
+export type ContentParent = OwnedContent & {
+  kind: "post" | "page";
+};
+
+export function canReadParent(user: CurrentUser, parent: ContentParent) {
+  return parent.kind === "post"
+    ? canReadPost(user, parent)
+    : canReadOfficialPage(user, parent);
+}
+
+export function canManageParent(user: CurrentUser, parent: ContentParent) {
+  return parent.kind === "post"
+    ? canManagePost(user, parent)
+    : canManageOfficialPage(user, parent);
+}
+
+// Comments
+export function canReadComments(user: CurrentUser, parent: ContentParent) {
+  return canReadParent(user, parent);
+}
+
+export function canCreateComment(user: CurrentUser, parent: ContentParent) {
+  return canReadParent(user, parent);
+}
+
+// Author edits/deletes own Comment; Admin moderates any Comment.
+export function canEditComment(
+  user: CurrentUser,
+  comment: { authorId: number },
+  parent: ContentParent
+) {
+  return (
+    canReadParent(user, parent) &&
+    (isAdmin(user) || comment.authorId === user.id)
+  );
+}
+
+export function canDeleteComment(
+  user: CurrentUser,
+  comment: { authorId: number },
+  parent: ContentParent
+) {
+  return canEditComment(user, comment, parent);
+}
+
+// Files
+export function canDownloadFile(user: CurrentUser, parent: ContentParent) {
+  return canReadParent(user, parent);
+}
+
+// Post owner/Admin for Posts; Editor-in-scope/Admin for Official Pages.
+export function canManageFiles(user: CurrentUser, parent: ContentParent) {
+  return canManageParent(user, parent);
+}
+
+// Bookmarks
+export function canBookmark(user: CurrentUser, parent: ContentParent) {
+  return canReadParent(user, parent);
 }
 
 // ---------------------------------------------------------------
@@ -199,4 +260,23 @@ export function readablePagesFilter(user: CurrentUser) {
     )`,
     params: [isAdmin(user), isEditor(user), user.departmentId] as const,
   };
+}
+
+// Search (Week 6): normal Search shows only PUBLISHED content the user may
+// read — even owners/editors do not see their drafts or archived items here.
+// `alias` is a fixed table alias written in code, never user input.
+// Parameters: isAdminParam = boolean, departmentParam = user's department id.
+export function searchableContentSql(
+  alias: string,
+  isAdminParam: string,
+  departmentParam: string
+) {
+  return `(
+    ${alias}.status = 'published'
+    AND (
+      ${isAdminParam}::boolean
+      OR ${alias}.scope = 'company'
+      OR ${alias}.department_id = ${departmentParam}::bigint
+    )
+  )`;
 }
