@@ -137,65 +137,71 @@ async function handleSubmit(
           </div>
 
           <div className="feed-controls">
-  <label htmlFor="tag-filter">Filter by tag</label>
+            <div className="field field-grow">
+              <label htmlFor="post-search">Search by title</label>
+              <input
+                id="post-search"
+                type="text"
+                placeholder="Search posts..."
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+            </div>
 
-  <select
-    id="tag-filter"
-    value={selectedTag}
-    onChange={(event) => setSelectedTag(event.target.value)}
-  >
-{availableTags.map((tagOption, index) => (
-  <option key={`${tagOption}-${index}`} value={tagOption}>
-    {tagOption}
-  </option>
-))}  </select>
+            <div className="field">
+              <label htmlFor="tag-filter">Filter by tag</label>
+              <select
+                id="tag-filter"
+                value={selectedTag}
+                onChange={(event) => setSelectedTag(event.target.value)}
+              >
+                {availableTags.map((tagOption, index) => (
+                  <option key={`${tagOption}-${index}`} value={tagOption}>
+                    {tagOption}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-  <label htmlFor="status-filter">Status</label>
+            <div className="field">
+              <label htmlFor="status-filter">Status</label>
+              <select
+                id="status-filter"
+                value={selectedStatus}
+                onChange={(event) =>
+                  setSelectedStatus(event.target.value as StatusFilter)
+                }
+              >
+                <option value="active">Active</option>
+                <option value="published">Published</option>
+                <option value="draft">My drafts</option>
+                <option value="archived">Archived (managed)</option>
+              </select>
+            </div>
 
-  <select
-    id="status-filter"
-    value={selectedStatus}
-    onChange={(event) =>
-      setSelectedStatus(event.target.value as StatusFilter)
-    }
-  >
-    <option value="active">Active</option>
-    <option value="published">Published</option>
-    <option value="draft">My drafts</option>
-    <option value="archived">Archived (managed)</option>
-  </select>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                setSelectedTag("All");
+                setSelectedStatus("active");
+                setSearchTerm("");
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
 
-  <label htmlFor="post-search">Search by title</label>
-
-<input
-  id="post-search"
-  type="text"
-  placeholder="Search posts..."
-  value={searchTerm}
-  onChange={(event) => setSearchTerm(event.target.value)}
-/>
-
-<button
-  type="button"
-  onClick={() => {
-    setSelectedTag("All");
-    setSelectedStatus("active");
-    setSearchTerm("");
-  }}
->
-  Clear Filters
-</button>
-</div>
-
-<div className="add-post-button-row">
-  <button
-    type="button"
-    className={`toggle-form-button ${showForm ? "form-open" : ""}`}
-    onClick={() => setShowForm((previous) => !previous)}
-  >
-    {showForm ? "Hide Form" : "+ Add New Post"}
-  </button>
-</div>
+          <div className="add-post-button-row">
+            <button
+              type="button"
+              className={`btn ${showForm ? "btn-secondary" : "btn-primary"}`}
+              aria-expanded={showForm}
+              onClick={() => setShowForm((previous) => !previous)}
+            >
+              {showForm ? "Hide Form" : "+ Add New Post"}
+            </button>
+          </div>
 
 {showForm && (
     <form
@@ -211,18 +217,21 @@ async function handleSubmit(
 
   <input
     type="text"
+    aria-label="Title"
     placeholder="Title"
     value={title}
     onChange={(event) => setTitle(event.target.value)}
   />
 
   <textarea
+    aria-label="Content"
     placeholder="Content"
     value={content}
     onChange={(event) => setContent(event.target.value)}
   />
 
   <select
+  aria-label="Tag"
   value={tag}
   onChange={(event) => setTag(event.target.value)}
 >
@@ -234,32 +243,39 @@ async function handleSubmit(
   </option>
 ))}</select>
 
-  <label htmlFor="post-scope">Who can read it?</label>
-  <select
-    id="post-scope"
-    value={scope}
-    onChange={(event) => setScope(event.target.value as ContentScope)}
-  >
-    <option value="company">Whole company</option>
-    {userDepartmentName && (
-      <option value="department">
-        Only my department ({userDepartmentName})
-      </option>
-    )}
-  </select>
+  <div className="form-grid">
+    <div className="field">
+      <label htmlFor="post-scope">Who can read it?</label>
+      <select
+        id="post-scope"
+        value={scope}
+        onChange={(event) => setScope(event.target.value as ContentScope)}
+      >
+        <option value="company">Whole company</option>
+        {userDepartmentName && (
+          <option value="department">
+            Only my department ({userDepartmentName})
+          </option>
+        )}
+      </select>
+    </div>
 
-  <label htmlFor="post-status">Status</label>
-  <select
-    id="post-status"
-    value={status}
-    onChange={(event) => setStatus(event.target.value as ContentStatus)}
-  >
-    <option value="published">Publish now</option>
-    <option value="draft">Save as draft</option>
-  </select>
+    <div className="field">
+      <label htmlFor="post-status">Status</label>
+      <select
+        id="post-status"
+        value={status}
+        onChange={(event) => setStatus(event.target.value as ContentStatus)}
+      >
+        <option value="published">Publish now</option>
+        <option value="draft">Save as draft</option>
+      </select>
+    </div>
+  </div>
 
 <button
   type="submit"
+  className="btn btn-primary"
   disabled={isSubmitting}
 >
   {isSubmitting ? "Adding..." : "Add Post"}

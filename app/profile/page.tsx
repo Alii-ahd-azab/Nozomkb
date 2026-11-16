@@ -18,7 +18,11 @@ export default async function ProfilePage() {
             <dt>Email</dt>
             <dd>{profile.email}</dd>
             <dt>Role</dt>
-            <dd>{profile.role}</dd>
+            <dd>
+              <span className={`badge badge-role-${profile.role.toLowerCase()}`}>
+                {profile.role}
+              </span>
+            </dd>
             <dt>Department</dt>
             <dd>{profile.departmentName ?? "Not assigned"}</dd>
             <dt>Specialty</dt>

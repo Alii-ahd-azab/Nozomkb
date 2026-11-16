@@ -7,10 +7,10 @@ export default function NotFound() {
     <main className="post-details-page">
       <article className="post-details-card">
         <h1>Content not found</h1>
-        <p>
+        <p className="content-body">
           This content does not exist or is not available to your account.
         </p>
-        <Link href="/feed" className="back-link">
+        <Link href="/feed" className="btn btn-secondary">
           Back to Feed
         </Link>
       </article>

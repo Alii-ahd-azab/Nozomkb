@@ -46,7 +46,7 @@ export default function LoginForm({
 
       <input type="hidden" name="redirectTo" value={redirectTo} />
 
-      <button type="submit" disabled={isPending}>
+      <button type="submit" className="btn btn-primary btn-block" disabled={isPending}>
         {isPending ? "Signing in..." : "Sign in"}
       </button>
     </form>

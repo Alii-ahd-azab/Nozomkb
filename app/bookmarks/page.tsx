@@ -36,7 +36,7 @@ export default async function BookmarksPage() {
                   href={parentHref(bookmark.kind, bookmark.id)}
                   className="post-card-link"
                 >
-                  <article className="post-card">
+                  <article className={`post-card ${bookmark.kind === "page" ? "post-card-official" : ""}`}>
                     <div className="content-badges">
                       <span
                         className={`badge ${bookmark.kind === "page" ? "badge-official" : "badge-community"}`}
@@ -50,9 +50,11 @@ export default async function BookmarksPage() {
                       </span>
                     </div>
                     <h2>{bookmark.title}</h2>
-                    <p className="content-meta">
-                      Saved {new Date(bookmark.createdAt).toLocaleDateString("en-GB")}
-                    </p>
+                    <div className="card-footer">
+                      <span className="content-meta">
+                        ★ Saved {new Date(bookmark.createdAt).toLocaleDateString("en-GB")}
+                      </span>
+                    </div>
                   </article>
                 </Link>
               ))}

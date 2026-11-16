@@ -49,7 +49,7 @@ export default function BookmarkButton({
     <div className="bookmark-control">
       <button
         type="button"
-        className={`bookmark-button ${bookmarked ? "is-bookmarked" : ""}`}
+        className={`btn bookmark-button ${bookmarked ? "is-bookmarked" : ""}`}
         aria-pressed={bookmarked}
         disabled={isBusy}
         onClick={toggle}

@@ -104,7 +104,9 @@ export default function CommentsSection({
 
   return (
     <section className="detail-section" aria-labelledby="comments-heading">
-      <h2 id="comments-heading">Comments ({comments.length})</h2>
+      <h2 id="comments-heading">
+        Comments <span className="count-pill">{comments.length}</span>
+      </h2>
 
       {comments.length === 0 ? (
         <p className="empty-state">
@@ -114,54 +116,77 @@ export default function CommentsSection({
         <ul className="comment-list">
           {comments.map((comment) => (
             <li key={comment.id} className="comment-item">
-              <p className="content-meta">
-                {comment.authorName} ·{" "}
-                {new Date(comment.createdAt).toLocaleString("en-GB")}
-                {comment.updatedAt !== comment.createdAt && " · edited"}
-              </p>
+              <span className="comment-avatar" aria-hidden="true">
+                {comment.authorName.trim().charAt(0).toUpperCase()}
+              </span>
 
-              {editingId === comment.id ? (
-                <div className="comment-edit">
-                  <textarea
-                    aria-label="Edit comment"
-                    value={editText}
-                    onChange={(event) => setEditText(event.target.value)}
-                  />
+              <div className="comment-body">
+                <p className="comment-head">
+                  <span className="comment-author">
+                    {comment.authorName}
+                  </span>
+                  <span className="content-meta">
+                    {new Date(comment.createdAt).toLocaleString("en-GB")}
+                    {comment.updatedAt !== comment.createdAt && (
+                      <span className="comment-edited"> · edited</span>
+                    )}
+                  </span>
+                </p>
+
+                {editingId === comment.id ? (
+                  <div className="comment-edit">
+                    <textarea
+                      aria-label="Edit comment"
+                      value={editText}
+                      onChange={(event) => setEditText(event.target.value)}
+                    />
+                    <div className="inline-actions">
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        disabled={isBusy}
+                        onClick={() => handleSave(comment.id)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="comment-text">{comment.content}</p>
+                )}
+
+                {/* UX only: PATCH/DELETE /api/comments/[id] re-check on the server */}
+                {comment.canEdit && editingId !== comment.id && (
                   <div className="inline-actions">
-                    <button type="button" disabled={isBusy} onClick={() => handleSave(comment.id)}>
-                      Save
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => {
+                        setEditingId(comment.id);
+                        setEditText(comment.content);
+                        setError("");
+                      }}
+                    >
+                      Edit
                     </button>
-                    <button type="button" onClick={() => setEditingId(null)}>
-                      Cancel
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      disabled={isBusy}
+                      onClick={() => handleDelete(comment.id)}
+                    >
+                      Delete
                     </button>
                   </div>
-                </div>
-              ) : (
-                <p className="comment-text">{comment.content}</p>
-              )}
-
-              {/* UX only: PATCH/DELETE /api/comments/[id] re-check on the server */}
-              {comment.canEdit && editingId !== comment.id && (
-                <div className="inline-actions">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(comment.id);
-                      setEditText(comment.content);
-                      setError("");
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isBusy}
-                    onClick={() => handleDelete(comment.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </li>
           ))}
         </ul>
@@ -179,9 +204,10 @@ export default function CommentsSection({
           id={`new-comment-${kind}-${parentId}`}
           value={newComment}
           maxLength={COMMENT_MAX_LENGTH}
+          placeholder="Share a note, tip or question…"
           onChange={(event) => setNewComment(event.target.value)}
         />
-        <button type="submit" disabled={isBusy}>
+        <button type="submit" className="btn btn-primary" disabled={isBusy}>
           {isBusy ? "Saving..." : "Add Comment"}
         </button>
       </form>

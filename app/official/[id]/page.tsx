@@ -39,22 +39,28 @@ export default async function OfficialPageDetails({
   return (
     <Layout>
       <main className="post-details-page">
-        <article className="post-details-card">
-          <ContentBadges
-            kind="official"
-            status={page.status}
-            scope={page.scope}
-            departmentName={page.departmentName}
-          />
+        <article className="post-details-card post-details-official">
+          <Link href="/official" className="back-link">
+            ← Back to Official Pages
+          </Link>
 
-          <h1>{page.title}</h1>
+          <header className="detail-header">
+            <ContentBadges
+              kind="official"
+              status={page.status}
+              scope={page.scope}
+              departmentName={page.departmentName}
+            />
 
-          <p className="content-meta">
-            Owner: {page.authorName ?? "Unknown"} · Updated{" "}
-            {new Date(page.updatedAt).toLocaleString("en-GB")}
-          </p>
+            <h1>{page.title}</h1>
 
-          <p>{page.content}</p>
+            <p className="content-meta">
+              Owner: {page.authorName ?? "Unknown"} · Updated{" "}
+              {new Date(page.updatedAt).toLocaleString("en-GB")}
+            </p>
+          </header>
+
+          <p className="content-body">{page.content}</p>
 
           {/* UX only: PATCH /api/pages/[id] re-checks the role on the server. */}
           {canManage && (
@@ -67,10 +73,6 @@ export default async function OfficialPageDetails({
           )}
 
           <ParentExtras user={user} parent={{ ...page, kind: "page" }} />
-
-          <Link href="/official" className="back-link">
-            Back to Official Pages
-          </Link>
         </article>
       </main>
     </Layout>

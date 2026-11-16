@@ -70,7 +70,7 @@ export default function SpecialtyForm({
       )}
       {message && <p className="form-success">{message}</p>}
 
-      <button type="submit" disabled={isSaving}>
+      <button type="submit" className="btn btn-primary" disabled={isSaving}>
         {isSaving ? "Saving..." : "Save Specialty"}
       </button>
     </form>

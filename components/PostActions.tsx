@@ -125,96 +125,102 @@ async function handleDelete() {
 
 
   return (
-<div className="post-actions">
-  {!isEditing ? (
-    <button
-      type="button"
-      onClick={() => setIsEditing(true)}
-    >
-      Edit Post
-    </button>
-  ) : (
-    <form onSubmit={handleUpdate}>
-      <input
-        type="text"
-        value={editedTitle}
-        onChange={(event) =>
-          setEditedTitle(event.target.value)
-        }
-      />
+    <div className="post-actions">
+      {isEditing && (
+        <form className="post-form" onSubmit={handleUpdate}>
+          <h2>Edit Post</h2>
 
-      <textarea
-        value={editedContent}
-        onChange={(event) =>
-          setEditedContent(event.target.value)
-        }
-      />
+          <div className="field">
+            <label htmlFor={`edit-title-${id}`}>Title</label>
+            <input
+              id={`edit-title-${id}`}
+              type="text"
+              value={editedTitle}
+              onChange={(event) => setEditedTitle(event.target.value)}
+            />
+          </div>
 
-      <label>
-        Status
-        <select
-          value={editedStatus}
-          onChange={(event) =>
-            setEditedStatus(event.target.value as ContentStatus)
-          }
+          <div className="field">
+            <label htmlFor={`edit-content-${id}`}>Content</label>
+            <textarea
+              id={`edit-content-${id}`}
+              value={editedContent}
+              onChange={(event) => setEditedContent(event.target.value)}
+            />
+          </div>
+
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor={`edit-status-${id}`}>Status</label>
+              <select
+                id={`edit-status-${id}`}
+                value={editedStatus}
+                onChange={(event) =>
+                  setEditedStatus(event.target.value as ContentStatus)
+                }
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+
+            <div className="field">
+              <label htmlFor={`edit-scope-${id}`}>Who can read it?</label>
+              <select
+                id={`edit-scope-${id}`}
+                value={editedScope}
+                onChange={(event) =>
+                  setEditedScope(event.target.value as ContentScope)
+                }
+              >
+                <option value="company">Whole company</option>
+                {departmentLabel && (
+                  <option value="department">Only {departmentLabel}</option>
+                )}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                setIsEditing(false);
+                setError("");
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {error && <p className="form-error">{error}</p>}
+
+      <div className="action-bar">
+        {!isEditing && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => setIsEditing(true)}
+          >
+            Edit Post
+          </button>
+        )}
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={handleDelete}
+          disabled={isDeleting}
         >
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-          <option value="archived">Archived</option>
-        </select>
-      </label>
-
-      <label>
-        Who can read it?
-        <select
-          value={editedScope}
-          onChange={(event) =>
-            setEditedScope(event.target.value as ContentScope)
-          }
-        >
-          <option value="company">Whole company</option>
-          {departmentLabel && (
-            <option value="department">
-              Only {departmentLabel}
-            </option>
-          )}
-        </select>
-      </label>
-
-      <button
-  type="submit"
-  disabled={isSaving}
->
-  {isSaving ? "Saving..." : "Save Changes"}
-    </button>
-
-
-      <button
-        type="button"
-        onClick={() => {
-        setIsEditing(false);
-        setError("");
-      }}
-      >
-        Cancel
-      </button>
-    </form>
-  )}
-
-  {error && (
-    <p className="form-error">
-      {error}
-    </p>
-  )}
-
-<button
-  type="button"
-  onClick={handleDelete}
-  disabled={isDeleting}
->
-  {isDeleting ? "Deleting..." : "Delete Post"}
-</button>
-
-</div>
+          {isDeleting ? "Deleting..." : "Delete Post"}
+        </button>
+      </div>
+    </div>
   );
 }

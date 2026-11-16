@@ -42,7 +42,7 @@ export default async function OfficialPagesPage() {
                   href={`/official/${page.id}`}
                   className="post-card-link"
                 >
-                  <article className="post-card">
+                  <article className="post-card post-card-official">
                     <ContentBadges
                       kind="official"
                       status={page.status}
@@ -50,7 +50,7 @@ export default async function OfficialPagesPage() {
                       departmentName={page.departmentName}
                     />
                     <h2>{page.title}</h2>
-                    <p>{page.content}</p>
+                    <p className="card-excerpt">{page.content}</p>
                   </article>
                 </Link>
               ))

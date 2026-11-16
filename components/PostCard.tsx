@@ -32,11 +32,15 @@ export default function PostCard({
           scope={scope}
           departmentName={departmentName}
         />
-        {tag && <span className="post-tag">{tag}</span>}
         <h2>{title}</h2>
-        <p>{content}</p>
-        {authorName && (
-          <p className="content-meta">By {authorName}</p>
+        <p className="card-excerpt">{content}</p>
+        {(tag || authorName) && (
+          <div className="card-footer">
+            {tag && <span className="post-tag">{tag}</span>}
+            {authorName && (
+              <span className="content-meta">By {authorName}</span>
+            )}
+          </div>
         )}
       </article>
     </Link>

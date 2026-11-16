@@ -77,46 +77,63 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
 
           <form className="feed-controls search-form" action="/search" method="get">
-            <label htmlFor="search-q">Keyword</label>
-            <input
-              id="search-q"
-              name="q"
-              type="search"
-              defaultValue={current.q}
-              maxLength={100}
-              placeholder="e.g. leave, printer, payroll..."
-            />
+            <div className="search-main">
+              <div className="field">
+                <label htmlFor="search-q">Keyword</label>
+                <input
+                  id="search-q"
+                  name="q"
+                  type="search"
+                  defaultValue={current.q}
+                  maxLength={100}
+                  placeholder="e.g. leave, printer, payroll..."
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Search
+              </button>
+            </div>
 
-            <label htmlFor="search-type">Type</label>
-            <select id="search-type" name="type" defaultValue={current.type}>
-              <option value="all">All</option>
-              <option value="page">Official Pages</option>
-              <option value="post">Community Posts</option>
-              <option value="comment">Comments</option>
-            </select>
+            <div className="search-filters">
+              <div className="field">
+                <label htmlFor="search-type">Type</label>
+                <select id="search-type" name="type" defaultValue={current.type}>
+                  <option value="all">All</option>
+                  <option value="page">Official Pages</option>
+                  <option value="post">Community Posts</option>
+                  <option value="comment">Comments</option>
+                </select>
+              </div>
 
-            <label htmlFor="search-department">Department</label>
-            <select id="search-department" name="department" defaultValue={current.department}>
-              <option value="all">All</option>
-              <option value="company">Company-wide only</option>
-              {departmentOptions.map((department) => (
-                <option key={department.id} value={String(department.id)}>
-                  {department.name}
-                </option>
-              ))}
-            </select>
+              <div className="field">
+                <label htmlFor="search-department">Department</label>
+                <select
+                  id="search-department"
+                  name="department"
+                  defaultValue={current.department}
+                >
+                  <option value="all">All</option>
+                  <option value="company">Company-wide only</option>
+                  {departmentOptions.map((department) => (
+                    <option key={department.id} value={String(department.id)}>
+                      {department.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <label htmlFor="search-tag">Tag</label>
-            <select id="search-tag" name="tag" defaultValue={current.tag ?? "all"}>
-              <option value="all">All</option>
-              {tags.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-
-            <button type="submit">Search</button>
+              <div className="field">
+                <label htmlFor="search-tag">Tag</label>
+                <select id="search-tag" name="tag" defaultValue={current.tag ?? "all"}>
+                  <option value="all">All</option>
+                  {tags.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </form>
 
           {errorMessage && (
@@ -150,7 +167,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               ) : (
                 <ol className="search-results">
                   {data.results.map((result) => (
-                    <li key={`${result.type}-${result.id}`} className="post-card search-result">
+                    <li
+                      key={`${result.type}-${result.id}`}
+                      className={`post-card search-result ${result.type === "page" ? "post-card-official" : ""}`}
+                    >
                       <div className="content-badges">
                         <span className={`badge badge-type-${result.type}`}>
                           {TYPE_LABELS[result.type]}
@@ -169,7 +189,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                             : result.title}
                         </Link>
                       </h2>
-                      <p>{result.snippet}</p>
+                      <p className="card-excerpt">{result.snippet}</p>
                     </li>
                   ))}
                 </ol>
@@ -178,7 +198,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               {data.totalPages > 1 && (
                 <nav className="pagination" aria-label="Search pages">
                   {data.page > 1 ? (
-                    <Link href={pageHref(data.page - 1)}>← Previous</Link>
+                    <Link href={pageHref(data.page - 1)} className="btn btn-secondary btn-sm">
+                      ← Previous
+                    </Link>
                   ) : (
                     <span />
                   )}
@@ -186,7 +208,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     Page {data.page} of {data.totalPages}
                   </span>
                   {data.page < data.totalPages ? (
-                    <Link href={pageHref(data.page + 1)}>Next →</Link>
+                    <Link href={pageHref(data.page + 1)} className="btn btn-secondary btn-sm">
+                      Next →
+                    </Link>
                   ) : (
                     <span />
                   )}

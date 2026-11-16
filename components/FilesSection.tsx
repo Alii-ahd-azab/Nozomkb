@@ -99,30 +99,65 @@ export default function FilesSection({
 
   return (
     <section className="detail-section" aria-labelledby="files-heading">
-      <h2 id="files-heading">Files ({files.length})</h2>
+      <h2 id="files-heading">
+        Files <span className="count-pill">{files.length}</span>
+      </h2>
 
       {files.length === 0 ? (
         <p className="empty-state">No files have been attached yet.</p>
       ) : (
         <ul className="file-list">
-          {files.map((file) => (
-            <li key={file.id} className="file-item">
-              {/* Private file: served only by the authorized download route */}
-              <a href={`/api/files/${file.id}/download`} className="file-link">
-                {file.originalName}
-              </a>
-              <span className="content-meta">
-                {file.mimeType === "application/pdf" ? "PDF" : "TXT"} ·{" "}
-                {formatSize(file.sizeBytes)}
-                {file.uploaderName ? ` · ${file.uploaderName}` : ""}
-              </span>
-              {canManage && (
-                <button type="button" disabled={isBusy} onClick={() => handleDelete(file.id)}>
-                  Delete file
-                </button>
-              )}
-            </li>
-          ))}
+          {files.map((file) => {
+            const type = file.mimeType === "application/pdf" ? "PDF" : "TXT";
+            const nameId = `file-name-${file.id}`;
+
+            return (
+              <li key={file.id} className="file-item">
+                <span
+                  className={`file-icon file-icon-${type.toLowerCase()}`}
+                  aria-hidden="true"
+                >
+                  {type}
+                </span>
+
+                <div className="file-info">
+                  {/* Private file: served only by the authorized download route */}
+                  <a
+                    id={nameId}
+                    href={`/api/files/${file.id}/download`}
+                    className="file-link"
+                  >
+                    {file.originalName}
+                  </a>
+                  <span className="content-meta">
+                    {type} · {formatSize(file.sizeBytes)}
+                    {file.uploaderName ? ` · Uploaded by ${file.uploaderName}` : ""}
+                  </span>
+                </div>
+
+                <div className="file-actions">
+                  <a
+                    href={`/api/files/${file.id}/download`}
+                    className="btn btn-secondary btn-sm"
+                    aria-describedby={nameId}
+                  >
+                    Download
+                  </a>
+                  {canManage && (
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      aria-describedby={nameId}
+                      disabled={isBusy}
+                      onClick={() => handleDelete(file.id)}
+                    >
+                      Delete file
+                    </button>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
@@ -144,7 +179,11 @@ export default function FilesSection({
             name="file"
             accept=".pdf,.txt,application/pdf,text/plain"
           />
-          <button type="submit" disabled={isBusy}>
+          <p className="form-hint">
+            Files are stored privately and can only be downloaded by people who
+            can read this {kind === "post" ? "post" : "page"}.
+          </p>
+          <button type="submit" className="btn btn-primary" disabled={isBusy}>
             {isBusy ? "Uploading..." : "Upload File"}
           </button>
         </form>

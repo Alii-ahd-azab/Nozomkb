@@ -94,12 +94,29 @@ export default function OfficialPageForm({
     }
   }
 
+  // Display only: the same PATCH/POST is sent whatever the label says.
+  const submitLabel =
+    status === "published"
+      ? isEditMode && page?.status === "published"
+        ? "Save"
+        : "Save & Publish"
+      : status === "archived"
+        ? "Save & Archive"
+        : "Save Draft";
+  const submitVariant =
+    status === "published"
+      ? "btn-success"
+      : status === "archived"
+        ? "btn-archive"
+        : "btn-primary";
+
   return (
     <div className="post-actions">
-      <div className="add-post-button-row">
+      <div className={isEditMode ? "action-bar" : "add-post-button-row"}>
         <button
           type="button"
-          className={`toggle-form-button ${isOpen ? "form-open" : ""}`}
+          aria-expanded={isOpen}
+          className={`btn ${isOpen || isEditMode ? "btn-secondary" : "btn-primary"}`}
           onClick={() => setIsOpen((previous) => !previous)}
         >
           {isOpen
@@ -116,20 +133,30 @@ export default function OfficialPageForm({
 
           {error && <p className="form-error">{error}</p>}
 
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          />
+          <div className="field">
+            <label htmlFor="page-title">Title</label>
+            <input
+              id="page-title"
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </div>
 
-          <textarea
-            placeholder="Content"
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-          />
+          <div className="field">
+            <label htmlFor="page-content">Content</label>
+            <textarea
+              id="page-content"
+              placeholder="Content"
+              value={content}
+              onChange={(event) => setContent(event.target.value)}
+            />
+          </div>
 
-          <label htmlFor="page-status">Status</label>
+          <div className="form-grid">
+          <div className="field">
+          <label htmlFor="page-status">Lifecycle status</label>
           <select
             id="page-status"
             value={status}
@@ -141,7 +168,9 @@ export default function OfficialPageForm({
             <option value="published">Published</option>
             {isEditMode && <option value="archived">Archived</option>}
           </select>
+          </div>
 
+          <div className="field">
           <label htmlFor="page-scope">Who can read it?</label>
           <select
             id="page-scope"
@@ -159,9 +188,10 @@ export default function OfficialPageForm({
               </option>
             )}
           </select>
+          </div>
 
           {scope === "department" && canChooseDepartment && (
-            <>
+            <div className="field">
               <label htmlFor="page-department">Department</label>
               <select
                 id="page-department"
@@ -174,11 +204,21 @@ export default function OfficialPageForm({
                   </option>
                 ))}
               </select>
-            </>
+            </div>
           )}
+          </div>
 
-          <button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+          <p className="form-hint">
+            Draft is visible to managers only · Published is visible to readers
+            in scope · Archived is hidden from readers.
+          </p>
+
+          <button
+            type="submit"
+            className={`btn ${submitVariant}`}
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : submitLabel}
           </button>
         </form>
       )}

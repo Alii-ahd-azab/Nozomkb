@@ -37,23 +37,28 @@ export default async function PostDetailsPage({
     <Layout>
       <main className="post-details-page">
         <article className="post-details-card">
-          <ContentBadges
-            kind="community"
-            status={post.status}
-            scope={post.scope}
-            departmentName={post.departmentName}
-          />
+          <Link href="/feed" className="back-link">
+            ← Back to Feed
+          </Link>
 
-          {post.tag && <span className="post-tag">{post.tag}</span>}
+          <header className="detail-header">
+            <ContentBadges
+              kind="community"
+              status={post.status}
+              scope={post.scope}
+              departmentName={post.departmentName}
+            />
 
-          <h1>{post.title}</h1>
+            <h1>{post.title}</h1>
 
-          <p className="content-meta">
-            By {post.authorName ?? "Unknown author"} · Updated{" "}
-            {new Date(post.updatedAt).toLocaleString("en-GB")}
-          </p>
+            <p className="content-meta">
+              {post.tag && <span className="post-tag">{post.tag}</span>}{" "}
+              By {post.authorName ?? "Unknown author"} · Updated{" "}
+              {new Date(post.updatedAt).toLocaleString("en-GB")}
+            </p>
+          </header>
 
-          <p>{post.content}</p>
+          <p className="content-body">{post.content}</p>
 
           {/* UX only: the API checks ownership again on every request. */}
           {canManage && (
@@ -72,10 +77,6 @@ export default async function PostDetailsPage({
           )}
 
           <ParentExtras user={user} parent={{ ...post, kind: "post" }} />
-
-          <Link href="/feed" className="back-link">
-            Back to Feed
-          </Link>
         </article>
       </main>
     </Layout>
