@@ -141,6 +141,20 @@ export type FileItem = {
   error: string | null;
   isActive: boolean;
   processedAt: string | null;
+  // Week 8: semantic indexing of the current version (null = not indexed /
+  // not eligible). Separate from the processing status above.
+  semanticStatus: SemanticIndexStatus | null;
+  semanticError: string | null;
+};
+
+export const SEMANTIC_INDEX_STATUSES = ["pending", "indexing", "ready", "failed"] as const;
+export type SemanticIndexStatus = (typeof SEMANTIC_INDEX_STATUSES)[number];
+
+export const SEMANTIC_STATUS_LABELS: Record<SemanticIndexStatus, string> = {
+  pending: "Semantic: queued",
+  indexing: "Semantic: indexing",
+  ready: "Semantic: indexed",
+  failed: "Semantic: failed",
 };
 
 export type BookmarkItem = {
@@ -163,6 +177,10 @@ export type Profile = {
 export const SEARCH_TYPES = ["all", "page", "post", "comment", "file"] as const;
 export type SearchType = (typeof SEARCH_TYPES)[number];
 
+// Week 8: Keyword (ILIKE, Week 6/7) vs Semantic (embeddings + pgvector).
+export const SEARCH_MODES = ["keyword", "semantic"] as const;
+export type SearchMode = (typeof SEARCH_MODES)[number];
+
 export type SearchResult = {
   type: "page" | "post" | "comment" | "file";
   id: number;
@@ -181,4 +199,29 @@ export type SearchResult = {
     // null for TXT (one logical page); 1-based for PDF
     pageNumber: number | null;
   } | null;
+};
+
+// Week 8: a Semantic Search hit. Same source information as a keyword hit,
+// plus where to open it and how close it is (never the vector itself).
+export type SemanticSearchResult = Omit<SearchResult, "file"> & {
+  // cosine similarity (1 - cosine distance), for display / evaluation
+  similarity: number;
+  // page that shows the source (the Post / Official Page)
+  url: string;
+  // authorized download route, File results only
+  downloadUrl: string | null;
+  file: {
+    id: number;
+    name: string;
+    version: number;
+    pageNumber: number | null;
+  } | null;
+};
+
+export type EmbeddingInfo = {
+  provider: string;
+  model: string;
+  dimensions: number;
+  // true = TEST ONLY deterministic vectors (not real semantic quality)
+  testOnly: boolean;
 };

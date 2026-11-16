@@ -9,6 +9,7 @@ import {
   type FileItem,
   type FileProcessingStatus,
   type ParentKind,
+  type SemanticIndexStatus,
 } from "@/lib/definitions";
 import { AR } from "@/lib/messages";
 
@@ -124,6 +125,8 @@ type FileRow = {
   processing_error: string | null;
   is_active: boolean;
   processed_at: Date | null;
+  semantic_status: SemanticIndexStatus | null;
+  semantic_error: string | null;
 };
 
 const FILE_SELECT = `
@@ -141,9 +144,17 @@ const FILE_SELECT = `
     files.processing_status,
     files.processing_error,
     files.is_active,
-    files.processed_at
+    files.processed_at,
+    -- Week 8: semantic indexing state of the CURRENT version (separate from
+    -- the Week 7 processing status)
+    sis.status AS semantic_status,
+    sis.error AS semantic_error
   FROM files
   LEFT JOIN users ON users.id = files.uploaded_by
+  LEFT JOIN semantic_index_status sis
+    ON sis.source_kind = 'file'
+   AND sis.file_id = files.id
+   AND sis.source_version = files.version
 `;
 
 function toFile(row: FileRow): FileRecord {
@@ -162,6 +173,8 @@ function toFile(row: FileRow): FileRecord {
     error: row.processing_error,
     isActive: row.is_active,
     processedAt: row.processed_at ? row.processed_at.toISOString() : null,
+    semanticStatus: row.semantic_status,
+    semanticError: row.semantic_error,
   };
 }
 
@@ -179,6 +192,8 @@ export function toFileItem(file: FileRecord): FileItem {
     error: file.error,
     isActive: file.isActive,
     processedAt: file.processedAt,
+    semanticStatus: file.semanticStatus,
+    semanticError: file.semanticError,
   };
 }
 

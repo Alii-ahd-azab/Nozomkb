@@ -189,11 +189,19 @@ type PostChanges = {
   status: ContentStatus;
 };
 
+// Week 8: content_version goes up only when the searchable TEXT changes, so
+// Semantic Search immediately stops using the old embedding (SET expressions
+// see the OLD row values).
 export async function updatePost(id: number, changes: PostChanges) {
   const result = await pool.query(
     `
       UPDATE posts
       SET
+        content_version = CASE
+          WHEN title IS DISTINCT FROM $1 OR content IS DISTINCT FROM $2
+            THEN content_version + 1
+          ELSE content_version
+        END,
         title = $1,
         content = $2,
         scope = $3,

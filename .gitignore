@@ -47,3 +47,6 @@ supabase_backup.sql
 !/storage/private/.gitkeep
 /test-results/
 /playwright-report/
+
+# Week 8: downloaded local embedding model files (re-downloaded on demand)
+/.models/

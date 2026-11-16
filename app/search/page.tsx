@@ -4,13 +4,19 @@ import { requireUser } from "@/lib/current-user";
 import { isAdmin } from "@/lib/authz";
 import { getDepartments } from "@/lib/departments";
 import { getTagNames } from "@/lib/tags";
-import { parentHref } from "@/lib/definitions";
+import { parentHref, type SemanticSearchResult } from "@/lib/definitions";
 import { AR } from "@/lib/messages";
 import {
+  MAX_SEMANTIC_QUERY_LENGTH,
   parseSearchParams,
   searchContent,
   type SearchParams,
 } from "@/lib/search";
+import {
+  getEmbeddingInfo,
+  semanticSearch,
+  SemanticSearchUnavailableError,
+} from "@/lib/semantic-search";
 
 type SearchPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -23,8 +29,12 @@ const TYPE_LABELS = {
   file: "File",
 } as const;
 
+type KeywordData = Awaited<ReturnType<typeof searchContent>>;
+type SemanticData = Awaited<ReturnType<typeof semanticSearch>>;
+
 // Plain GET form: works without JavaScript, and every result is computed on
 // the server for the signed-in user (published + permitted only).
+// Week 8: Mode = Keyword (exact words, Week 6/7) or Semantic (by meaning).
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const raw = await searchParams;
   const user = await requireUser("/search");
@@ -39,21 +49,35 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasQuery = typeof raw.q === "string" && raw.q.trim() !== "";
   const parsed = hasQuery ? parseSearchParams(raw) : null;
 
-  let data: Awaited<ReturnType<typeof searchContent>> | null = null;
+  let keywordData: KeywordData | null = null;
+  let semanticData: SemanticData | null = null;
   let errorMessage = parsed && !parsed.ok ? parsed.error : "";
 
   if (parsed?.ok) {
     try {
-      data = await searchContent(user, parsed.value);
+      if (parsed.value.mode === "semantic") {
+        semanticData = await semanticSearch(user, parsed.value);
+      } else {
+        keywordData = await searchContent(user, parsed.value);
+      }
     } catch (error) {
-      console.error(error);
-      errorMessage = AR.searchFailed;
+      if (error instanceof SemanticSearchUnavailableError) {
+        errorMessage = AR.semanticSearchUnavailable;
+      } else {
+        console.error(error);
+        errorMessage = AR.searchFailed;
+      }
     }
   }
 
+  const requestedMode = raw.mode === "semantic" ? "semantic" : "keyword";
+
   const current: SearchParams = parsed?.ok
     ? parsed.value
-    : { q: "", type: "all", department: "all", tag: null, page: 1 };
+    : { mode: requestedMode, q: "", type: "all", department: "all", tag: null, page: 1 };
+
+  const semantic = current.mode === "semantic";
+  const embedding = semantic ? getEmbeddingInfo() : null;
 
   function pageHref(page: number) {
     const params = new URLSearchParams({
@@ -72,25 +96,38 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <main>
         <section className="feed-section">
           <div className="feed-header">
-            <p className="eyebrow">Keyword Search</p>
+            <p className="eyebrow">{semantic ? "Semantic Search" : "Keyword Search"}</p>
             <h1>Search</h1>
             <p>
-              Search published Official Pages, Community Posts, Comments and the text of
-              attached Files you can access.
+              {semantic
+                ? "Search by meaning: results are ranked by how close they are to your question, even when the words differ. Only published content you can access is searched."
+                : "Search published Official Pages, Community Posts, Comments and the text of attached Files you can access."}
             </p>
           </div>
 
           <form className="feed-controls search-form" action="/search" method="get">
             <div className="search-main">
+              <div className="field search-mode">
+                <label htmlFor="search-mode">Mode</label>
+                <select id="search-mode" name="mode" defaultValue={current.mode}>
+                  <option value="keyword">Keyword</option>
+                  <option value="semantic">Semantic</option>
+                </select>
+              </div>
+
               <div className="field">
-                <label htmlFor="search-q">Keyword</label>
+                <label htmlFor="search-q">{semantic ? "Question" : "Keyword"}</label>
                 <input
                   id="search-q"
                   name="q"
                   type="search"
                   defaultValue={current.q}
-                  maxLength={100}
-                  placeholder="e.g. leave, printer, payroll..."
+                  maxLength={MAX_SEMANTIC_QUERY_LENGTH}
+                  placeholder={
+                    semantic
+                      ? "e.g. how many vacation days do I get?"
+                      : "e.g. leave, printer, payroll..."
+                  }
                 />
               </div>
               <button type="submit" className="btn btn-primary">
@@ -141,6 +178,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           </form>
 
+          {embedding?.testOnly && (
+            <p className="search-test-notice" role="note">
+              TEST ONLY embeddings are active (deterministic fake vectors for automated
+              tests). These results say nothing about real semantic quality.
+            </p>
+          )}
+
           {errorMessage && (
             <p className="form-error" role="alert" dir="rtl">
               {errorMessage}
@@ -150,28 +194,33 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           {!hasQuery && (
             <div className="no-results">
               <h2>Start searching</h2>
-              <p>Type a keyword and press Search.</p>
+              <p>
+                {semantic
+                  ? "Ask a question in your own words and press Search."
+                  : "Type a keyword and press Search."}
+              </p>
             </div>
           )}
 
-          {data && (
+          {keywordData && (
             <>
               <p className="content-meta search-summary">
-                {data.total} result{data.total === 1 ? "" : "s"} for “{current.q}”
-                {data.total > 0 && ` · page ${data.page} of ${data.totalPages}`}
+                {keywordData.total} result{keywordData.total === 1 ? "" : "s"} for “{current.q}”
+                {keywordData.total > 0 &&
+                  ` · page ${keywordData.page} of ${keywordData.totalPages}`}
               </p>
 
-              {data.results.length === 0 ? (
+              {keywordData.results.length === 0 ? (
                 <div className="no-results">
                   <h2>No results</h2>
                   <p>
-                    Nothing you can access matches “{current.q}”. Try another keyword or
-                    clear the filters.
+                    Nothing you can access matches “{current.q}”. Try another keyword,
+                    Semantic mode, or clear the filters.
                   </p>
                 </div>
               ) : (
                 <ol className="search-results">
-                  {data.results.map((result) => (
+                  {keywordData.results.map((result) => (
                     <li
                       key={`${result.type}-${result.id}`}
                       className={`post-card search-result ${result.type === "page" ? "post-card-official" : ""}`}
@@ -221,20 +270,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </ol>
               )}
 
-              {data.totalPages > 1 && (
+              {keywordData.totalPages > 1 && (
                 <nav className="pagination" aria-label="Search pages">
-                  {data.page > 1 ? (
-                    <Link href={pageHref(data.page - 1)} className="btn btn-secondary btn-sm">
+                  {keywordData.page > 1 ? (
+                    <Link
+                      href={pageHref(keywordData.page - 1)}
+                      className="btn btn-secondary btn-sm"
+                    >
                       ← Previous
                     </Link>
                   ) : (
                     <span />
                   )}
                   <span>
-                    Page {data.page} of {data.totalPages}
+                    Page {keywordData.page} of {keywordData.totalPages}
                   </span>
-                  {data.page < data.totalPages ? (
-                    <Link href={pageHref(data.page + 1)} className="btn btn-secondary btn-sm">
+                  {keywordData.page < keywordData.totalPages ? (
+                    <Link
+                      href={pageHref(keywordData.page + 1)}
+                      className="btn btn-secondary btn-sm"
+                    >
                       Next →
                     </Link>
                   ) : (
@@ -244,8 +299,82 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               )}
             </>
           )}
+
+          {semanticData && (
+            <>
+              <p className="content-meta search-summary">
+                Top {semanticData.results.length} result
+                {semanticData.results.length === 1 ? "" : "s"} by meaning for “{current.q}”
+              </p>
+
+              {semanticData.results.length === 0 ? (
+                <div className="no-results">
+                  <h2>No results</h2>
+                  <p>
+                    Nothing you can access has been indexed for Semantic Search yet. Try
+                    Keyword mode or clear the filters.
+                  </p>
+                </div>
+              ) : (
+                <ol className="search-results">
+                  {semanticData.results.map((result) => (
+                    <SemanticResultCard key={`${result.type}-${result.id}`} result={result} />
+                  ))}
+                </ol>
+              )}
+            </>
+          )}
         </section>
       </main>
     </Layout>
+  );
+}
+
+function SemanticResultCard({ result }: { result: SemanticSearchResult }) {
+  const parentLabel = result.parentKind === "page" ? "Official Page" : "Community Post";
+
+  return (
+    <li
+      className={`post-card search-result ${result.type === "page" ? "post-card-official" : ""}`}
+    >
+      <div className="content-badges">
+        <span className={`badge badge-type-${result.type}`}>{TYPE_LABELS[result.type]}</span>
+        <span className="badge badge-scope">
+          {result.scope === "company"
+            ? "Company-wide"
+            : `Department: ${result.departmentName ?? "Unknown"}`}
+        </span>
+        <span className="badge badge-similarity" title="Cosine similarity to your question">
+          Similarity {result.similarity.toFixed(2)}
+        </span>
+      </div>
+
+      <h2>
+        <Link href={result.url}>
+          {result.type === "comment" ? `Comment on “${result.parentTitle}”` : result.title}
+        </Link>
+      </h2>
+
+      {(result.type === "comment" || result.file) && (
+        <p className="content-meta search-source">
+          In {parentLabel} “{result.parentTitle}”
+          {result.file && ` · File version ${result.file.version}`}
+          {result.file?.pageNumber != null && ` · Page ${result.file.pageNumber}`}
+        </p>
+      )}
+
+      <p className="card-excerpt">{result.snippet}</p>
+
+      <div className="search-result-actions">
+        <Link href={result.url} className="btn btn-secondary btn-sm search-result-action">
+          Open source
+        </Link>
+        {result.downloadUrl && (
+          <a href={result.downloadUrl} className="btn btn-secondary btn-sm search-result-action">
+            Download file
+          </a>
+        )}
+      </div>
+    </li>
   );
 }

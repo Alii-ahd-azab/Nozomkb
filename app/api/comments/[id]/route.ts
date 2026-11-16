@@ -12,6 +12,7 @@ import {
   type RouteContext,
 } from "@/lib/handlers/parent";
 import { getCurrentUser } from "@/lib/current-user";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 
 // Comment -> parent -> parent access. A Comment on a parent the user cannot
 // read is reported as 404, even if the ID was guessed correctly.
@@ -81,6 +82,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!updated) {
       return arNotFound();
     }
+
+    // Week 8: old embedding removed now, new one queued.
+    await syncSemanticIndex({ kind: "comment", id: updated.id });
 
     return Response.json(toCommentItem(user, parent, updated));
   } catch (error) {

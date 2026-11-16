@@ -126,11 +126,17 @@ export async function createPage(input: PageInput & { authorId: number }) {
   return getPageById(Number(result.rows[0].id));
 }
 
+// Week 8: a text change bumps content_version (old embedding = stale at once).
 export async function updatePage(id: number, changes: PageInput) {
   const result = await pool.query(
     `
       UPDATE pages
       SET
+        content_version = CASE
+          WHEN title IS DISTINCT FROM $1 OR content IS DISTINCT FROM $2
+            THEN content_version + 1
+          ELSE content_version
+        END,
         title = $1,
         content = $2,
         scope = $3,

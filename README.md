@@ -466,3 +466,54 @@ Key concepts practiced:
 - Retries
 - Idempotency
 - HTTP request limits
+
+
+
+## Week 8 Status
+
+Completed:
+
+- Added Embeddings with a provider abstraction (`lib/semantic/`): REAL local model `intfloat/multilingual-e5-small` (384 dims, Arabic + English, no API key) by default, optional OpenAI `text-embedding-3-small` (384 dims) when configured, and a clearly labelled TEST ONLY deterministic provider for automated tests
+- Added pgvector 0.8.7 to the local PostgreSQL 18 and migration `007_add_semantic_index.sql` (`semantic_documents` with `vector(384)`, `semantic_index_status`, `content_version` on Posts/Pages/Comments)
+- Added Semantic Search (Search page → Mode: Keyword / Semantic, `GET /api/search?mode=semantic`) — retrieval only, no generated answers
+- Ranked by vector similarity: cosine distance (`<=>`), exact scan, most similar first
+- Made Retrieval permission-aware: department / scope / Admin rules and the published lifecycle are part of the same SQL query that ranks by similarity
+- Indexed published Official Pages, published Community Posts, Comments on published parents and the Chunks of active, Ready, current File versions
+- Added reindexing: a separate BullMQ Queue (`nozom-semantic-indexing`) + Worker Jobs `{ sourceType, sourceId, sourceVersion }`, `npm run semantic:reindex` (idempotent bootstrap / repair)
+- Added stale-index exclusion: an edit bumps the source version and deletes the old vectors in the request; archive / disable / replace / delete remove them immediately
+- Every result is source-linked: type, title, parent, File version + PDF page, open-source link and authorized download link
+- Added Keyword vs Semantic evaluation on 10 questions with the real model (`npm run eval:week8`, `docs/week8-retrieval-evaluation.md`)
+- Added integration tests with real PostgreSQL/pgvector + Redis + Worker (`npm run test:week8`)
+
+Architecture:
+
+- Content → embedding provider → vector → PostgreSQL pgvector
+- Query → query embedding → vector similarity → permissions / lifecycle → ranked results → source
+
+Local development:
+
+- Terminal 1: Redis on `127.0.0.1:6379`
+- Terminal 2: `npm run dev`
+- Terminal 3: `npm run worker:dev` (File processing + semantic indexing)
+- Once: migration `007_add_semantic_index.sql`, then `npm run semantic:reindex`
+- The local model is downloaded on first use into `.models/` (git-ignored)
+
+Notes:
+
+- Vectors are a cache: Search re-checks version, lifecycle and permissions at query time, so a permission change needs no re-embedding
+- File processing status (Week 7) and semantic indexing status are separate
+- Vectors of different models are never compared (`embedding_model` is stored per row)
+- Real evaluation result (Top-5): Keyword 4/10, Semantic 9/10
+- Chat / RAG answer generation belongs to Week 9
+
+Key concepts practiced:
+
+- Tokens
+- Embeddings
+- Vectors
+- Vector Similarity
+- pgvector
+- Semantic Search
+- Retrieval
+- Retrieval Quality
+- Reindexing

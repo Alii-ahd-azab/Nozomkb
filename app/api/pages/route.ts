@@ -5,6 +5,7 @@ import {
   canTargetDepartment,
 } from "@/lib/authz";
 import { createPage, getReadablePages } from "@/lib/pages";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 import {
   forbidden,
   isBadInputDatabaseError,
@@ -100,6 +101,11 @@ export async function POST(request: Request) {
       ...target,
       authorId: user.id,
     });
+
+    // Week 8: a published Official Page becomes eligible for Semantic Search.
+    if (page) {
+      await syncSemanticIndex({ kind: "page", id: page.id });
+    }
 
     return Response.json(page, { status: 201 });
   } catch (error) {

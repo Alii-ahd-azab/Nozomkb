@@ -3,6 +3,7 @@ import "server-only";
 
 import { canCreateComment, canEditComment } from "@/lib/authz";
 import { createComment, listComments, type CommentRecord } from "@/lib/comments";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 import { readJsonObject, readText, jsonError } from "@/lib/api";
 import {
   COMMENT_MAX_LENGTH,
@@ -103,6 +104,9 @@ export function commentRoutes(kind: ParentKind) {
       if (!comment) {
         return jsonError(AR.commentFailed, 500);
       }
+
+      // Week 8: a Comment on a published parent is queued for Semantic Search.
+      await syncSemanticIndex({ kind: "comment", id: comment.id });
 
       return Response.json(toCommentItem(user, parent, comment), { status: 201 });
     } catch (error) {

@@ -1379,6 +1379,57 @@ input[type="file"]::file-selector-button:hover {
   color: var(--nozom-blue-dark);
 }
 
+/* Week 8: Semantic Search */
+.search-main .search-mode {
+  flex: 0 0 170px;
+}
+
+.search-main select {
+  min-height: 48px;
+}
+
+.badge-similarity {
+  background: var(--nozom-neutral-soft);
+  border-color: var(--nozom-neutral-border);
+  color: var(--nozom-neutral);
+  font-variant-numeric: tabular-nums;
+}
+
+.search-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge-semantic-pending,
+.badge-semantic-indexing {
+  background: var(--nozom-surface);
+  border-color: var(--nozom-border-strong);
+  color: var(--nozom-neutral);
+}
+
+.badge-semantic-ready {
+  background: var(--nozom-primary-soft);
+  border-color: #c7dafc;
+  color: var(--nozom-blue-dark);
+}
+
+.badge-semantic-failed {
+  background: var(--nozom-danger-soft);
+  border-color: var(--nozom-danger-border);
+  color: var(--nozom-danger);
+}
+
+.search-test-notice {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px dashed var(--nozom-border-strong);
+  border-radius: 8px;
+  background: var(--nozom-surface);
+  color: var(--nozom-neutral);
+  font-size: 14px;
+}
+
 .search-result h2 a:focus-visible {
   box-shadow: none;
 }
@@ -1558,6 +1609,10 @@ input[type="file"]::file-selector-button:hover {
   .search-main {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .search-main .search-mode {
+    flex: none;
   }
 
   .search-filters {

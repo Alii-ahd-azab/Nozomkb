@@ -8,6 +8,7 @@ import {
 } from "@/lib/posts";
 import { getStorageKeysForParent } from "@/lib/files";
 import { removeStoredFiles } from "@/lib/storage";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 import {
   forbidden,
   isBadInputDatabaseError,
@@ -127,6 +128,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       return notFound("Post");
     }
 
+    // Week 8: edit -> old embedding removed now, re-index queued;
+    // archive/draft -> the Post, its Comments and Files leave the index;
+    // publish -> they are queued for indexing. (Scope/department changes
+    // need no re-index: permissions are checked at query time.)
+    await syncSemanticIndex({ kind: "post", id: updatedPost.id });
+
     return Response.json(updatedPost);
   } catch (error) {
     if (isBadInputDatabaseError(error)) {
@@ -149,8 +156,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
       return forbidden();
     }
 
-    // Comments, bookmarks, tags and file rows cascade in PostgreSQL;
-    // the private files on disk are removed here.
+    // Comments, bookmarks, tags, file rows and semantic index rows cascade
+    // in PostgreSQL; the private files on disk are removed here.
     const storageKeys = await getStorageKeysForParent("post", loaded.post.id);
     const deleted = await deletePost(loaded.post.id);
 

@@ -99,7 +99,14 @@ export async function updateComment(id: number, content: string) {
   const result = await pool.query(
     `
       UPDATE comments
-      SET content = $1, updated_at = CURRENT_TIMESTAMP
+      SET
+        -- Week 8: a text change makes the old embedding stale at once
+        content_version = CASE
+          WHEN content IS DISTINCT FROM $1 THEN content_version + 1
+          ELSE content_version
+        END,
+        content = $1,
+        updated_at = CURRENT_TIMESTAMP
       WHERE id = $2
       RETURNING id
     `,

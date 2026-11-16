@@ -5,6 +5,7 @@ import {
   ALLOWED_FILE_EXTENSIONS,
   FILE_STATUS_LABELS,
   MAX_FILE_SIZE_BYTES,
+  SEMANTIC_STATUS_LABELS,
   type FileItem,
   type ParentKind,
 } from "@/lib/definitions";
@@ -42,7 +43,14 @@ function checkSelectedFile(file: File | undefined) {
 }
 
 function isUnfinished(file: FileItem) {
-  return file.isActive && (file.status === "pending" || file.status === "processing");
+  return (
+    file.isActive &&
+    (file.status === "pending" ||
+      file.status === "processing" ||
+      // Week 8: Ready, but semantic indexing still queued / running
+      (file.status === "ready" &&
+        (file.semanticStatus === "pending" || file.semanticStatus === "indexing")))
+  );
 }
 
 export default function FilesSection({
@@ -226,6 +234,18 @@ export default function FilesSection({
                       {file.status === "ready" && file.isActive && (
                         <span className="content-meta">Searchable</span>
                       )}
+                      {/* Week 8: semantic indexing (managers only) */}
+                      {canManage &&
+                        file.status === "ready" &&
+                        file.isActive &&
+                        file.semanticStatus && (
+                          <span
+                            className={`badge badge-semantic-${file.semanticStatus}`}
+                            data-testid={`file-semantic-${file.id}`}
+                          >
+                            {SEMANTIC_STATUS_LABELS[file.semanticStatus]}
+                          </span>
+                        )}
                     </span>
                   </div>
 
@@ -291,6 +311,16 @@ export default function FilesSection({
                     {file.error}
                   </p>
                 )}
+
+                {canManage &&
+                  file.status === "ready" &&
+                  file.isActive &&
+                  file.semanticStatus === "failed" &&
+                  file.semanticError && (
+                    <p className="file-processing-error" dir="rtl">
+                      {file.semanticError}
+                    </p>
+                  )}
 
                 {canManage && replacingId === file.id && (
                   <form

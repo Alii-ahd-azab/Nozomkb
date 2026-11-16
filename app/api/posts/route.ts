@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/current-user";
 import { canCreatePost } from "@/lib/authz";
 import { createPost, getReadablePosts } from "@/lib/posts";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 import {
   forbidden,
   isBadInputDatabaseError,
@@ -89,6 +90,11 @@ export async function POST(request: Request) {
       departmentId,
       status: status.value,
     });
+
+    // Week 8: a published Post becomes eligible for Semantic Search.
+    if (newPost) {
+      await syncSemanticIndex({ kind: "post", id: newPost.id });
+    }
 
     return Response.json(newPost, { status: 201 });
   } catch (error) {

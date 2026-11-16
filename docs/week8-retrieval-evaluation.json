@@ -1,0 +1,652 @@
+{
+  "runAt": "2026-11-16T21:32:45.005Z",
+  "embedding": {
+    "provider": "local",
+    "model": "Xenova/multilingual-e5-small",
+    "dimensions": 384,
+    "testOnly": false
+  },
+  "top": 5,
+  "keywordScore": 4,
+  "semanticScore": 9,
+  "questions": [
+    {
+      "n": 1,
+      "case": "Exact keyword works",
+      "user": "ali",
+      "keyword": "VPN client",
+      "question": "VPN client",
+      "expected": [
+        "PO_VPN"
+      ],
+      "keywordTotal": 1,
+      "keywordTop": [
+        {
+          "key": "PO_VPN",
+          "type": "post",
+          "id": 338,
+          "parentId": 338,
+          "parentKind": "post"
+        }
+      ],
+      "semanticTop": [
+        {
+          "key": "PO_VPN",
+          "type": "post",
+          "id": 338,
+          "similarity": 0.87,
+          "url": "/posts/338",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 1,
+          "similarity": 0.807,
+          "url": "/posts/1",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.787,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_WIFI",
+          "type": "post",
+          "id": 341,
+          "similarity": 0.786,
+          "url": "/posts/341",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "similarity": 0.785,
+          "url": "/official/47",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": 1,
+      "semanticRank": 1,
+      "keywordOk": true,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 2,
+      "case": "Synonyms help Semantic Search",
+      "user": "ali",
+      "keyword": "vacation",
+      "question": "How many vacation days do I get per year?",
+      "expected": [
+        "PG_LEAVE"
+      ],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "C_CARRY",
+          "type": "comment",
+          "id": 87,
+          "similarity": 0.854,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_LEAVE",
+          "type": "page",
+          "id": 44,
+          "similarity": 0.853,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.823,
+          "url": "/posts/342",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "similarity": 0.819,
+          "url": "/official/47",
+          "pageNumber": null
+        },
+        {
+          "key": "F_EXPENSE",
+          "type": "file",
+          "id": 142,
+          "similarity": 0.814,
+          "url": "/posts/342",
+          "pageNumber": 2
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 2,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 3,
+      "case": "Paraphrase helps Semantic Search",
+      "user": "ali",
+      "keyword": "computer",
+      "question": "My computer won't turn on, what should I do?",
+      "expected": [
+        "PO_LAPTOP"
+      ],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "PO_LAPTOP",
+          "type": "post",
+          "id": 339,
+          "similarity": 0.854,
+          "url": "/posts/339",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 1,
+          "similarity": 0.844,
+          "url": "/posts/1",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.815,
+          "url": "/posts/342",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.81,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "similarity": 0.806,
+          "url": "/official/47",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 1,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 4,
+      "case": "Official Page result",
+      "user": "ali",
+      "keyword": "wear",
+      "question": "What should I wear to the office?",
+      "expected": [
+        "PG_DRESS"
+      ],
+      "keywordTotal": 1,
+      "keywordTop": [
+        {
+          "key": "PG_DRESS",
+          "type": "page",
+          "id": 45,
+          "parentId": 45,
+          "parentKind": "page"
+        }
+      ],
+      "semanticTop": [
+        {
+          "key": "PG_DRESS",
+          "type": "page",
+          "id": 45,
+          "similarity": 0.877,
+          "url": "/official/45",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.816,
+          "url": "/posts/342",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "page",
+          "id": 1,
+          "similarity": 0.813,
+          "url": "/official/1",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.809,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_LEAVE",
+          "type": "page",
+          "id": 44,
+          "similarity": 0.807,
+          "url": "/official/44",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": 1,
+      "semanticRank": 1,
+      "keywordOk": true,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 5,
+      "case": "Community Post result",
+      "user": "ali",
+      "keyword": "bike",
+      "question": "Is there somewhere to park my bike?",
+      "expected": [
+        "PO_BIKE"
+      ],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "PO_BIKE",
+          "type": "post",
+          "id": 340,
+          "similarity": 0.84,
+          "url": "/posts/340",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.787,
+          "url": "/posts/342",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.786,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_LAPTOP",
+          "type": "post",
+          "id": 339,
+          "similarity": 0.776,
+          "url": "/posts/339",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "page",
+          "id": 1,
+          "similarity": 0.775,
+          "url": "/official/1",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 1,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 6,
+      "case": "Comment result",
+      "user": "ali",
+      "keyword": "carry over",
+      "question": "Can I carry over leave I did not use to next year?",
+      "expected": [
+        "C_CARRY"
+      ],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "C_CARRY",
+          "type": "comment",
+          "id": 87,
+          "similarity": 0.885,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 2,
+          "similarity": 0.835,
+          "url": "/posts/2",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_LEAVE",
+          "type": "page",
+          "id": 44,
+          "similarity": 0.82,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": "F_EXPENSE",
+          "type": "file",
+          "id": 142,
+          "similarity": 0.815,
+          "url": "/posts/342",
+          "pageNumber": 2
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.807,
+          "url": "/posts/342",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 1,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 7,
+      "case": "File Chunk result",
+      "user": "ali",
+      "keyword": "refund",
+      "question": "How do I get my money back for costs on a work trip?",
+      "expected": [
+        "F_EXPENSE"
+      ],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "F_EXPENSE",
+          "type": "file",
+          "id": 142,
+          "similarity": 0.865,
+          "url": "/posts/342",
+          "pageNumber": 2
+        },
+        {
+          "key": "PO_TRAVEL",
+          "type": "post",
+          "id": 342,
+          "similarity": 0.861,
+          "url": "/posts/342",
+          "pageNumber": null
+        },
+        {
+          "key": "F_EXPENSE",
+          "type": "file",
+          "id": 142,
+          "similarity": 0.847,
+          "url": "/posts/342",
+          "pageNumber": 1
+        },
+        {
+          "key": null,
+          "type": "page",
+          "id": 1,
+          "similarity": 0.824,
+          "url": "/official/1",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.819,
+          "url": "/posts/4",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 1,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 8,
+      "case": "Department-restricted result (HR-only page, asked by HR; also checked for an IT user)",
+      "user": "ahmed",
+      "keyword": "salary",
+      "question": "When are salaries paid each month?",
+      "expected": [
+        "PG_PAYROLL"
+      ],
+      "mustNotSee": {
+        "user": "ali",
+        "sources": [
+          "PG_PAYROLL"
+        ]
+      },
+      "keywordTotal": 1,
+      "keywordTop": [
+        {
+          "key": "F_EXPENSE",
+          "type": "file",
+          "id": 142,
+          "parentId": 342,
+          "parentKind": "post"
+        }
+      ],
+      "semanticTop": [
+        {
+          "key": "PG_PAYROLL",
+          "type": "page",
+          "id": 46,
+          "similarity": 0.862,
+          "url": "/official/46",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 10,
+          "similarity": 0.855,
+          "url": "/posts/10",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_LEAVE",
+          "type": "page",
+          "id": 44,
+          "similarity": 0.836,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": "C_CARRY",
+          "type": "comment",
+          "id": 87,
+          "similarity": 0.824,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 3,
+          "similarity": 0.82,
+          "url": "/posts/3",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": 1,
+      "keywordOk": false,
+      "semanticOk": true,
+      "mustNot": {
+        "user": "ali",
+        "leaked": false,
+        "total": 10
+      }
+    },
+    {
+      "n": 9,
+      "case": "Ambiguous query (account password vs guest Wi-Fi password)",
+      "user": "ali",
+      "keyword": "password",
+      "question": "password",
+      "expected": [
+        "PG_SECURITY",
+        "PO_WIFI"
+      ],
+      "keywordTotal": 2,
+      "keywordTop": [
+        {
+          "key": "PO_WIFI",
+          "type": "post",
+          "id": 341,
+          "parentId": 341,
+          "parentKind": "post"
+        },
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "parentId": 47,
+          "parentKind": "page"
+        }
+      ],
+      "semanticTop": [
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "similarity": 0.859,
+          "url": "/official/47",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.827,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "PO_WIFI",
+          "type": "post",
+          "id": 341,
+          "similarity": 0.82,
+          "url": "/posts/341",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "page",
+          "id": 1,
+          "similarity": 0.815,
+          "url": "/official/1",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "comment",
+          "id": 43,
+          "similarity": 0.799,
+          "url": "/official/1",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": 1,
+      "semanticRank": 1,
+      "keywordOk": true,
+      "semanticOk": true,
+      "mustNot": null
+    },
+    {
+      "n": 10,
+      "case": "Weak / no relevant source",
+      "user": "ali",
+      "keyword": "lunch menu",
+      "question": "What is on the cafeteria lunch menu today?",
+      "expected": [],
+      "keywordTotal": 0,
+      "keywordTop": [],
+      "semanticTop": [
+        {
+          "key": "PG_DRESS",
+          "type": "page",
+          "id": 45,
+          "similarity": 0.785,
+          "url": "/official/45",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "post",
+          "id": 4,
+          "similarity": 0.768,
+          "url": "/posts/4",
+          "pageNumber": null
+        },
+        {
+          "key": "C_CARRY",
+          "type": "comment",
+          "id": 87,
+          "similarity": 0.766,
+          "url": "/official/44",
+          "pageNumber": null
+        },
+        {
+          "key": "PG_SECURITY",
+          "type": "page",
+          "id": 47,
+          "similarity": 0.763,
+          "url": "/official/47",
+          "pageNumber": null
+        },
+        {
+          "key": null,
+          "type": "comment",
+          "id": 4,
+          "similarity": 0.76,
+          "url": "/official/1",
+          "pageNumber": null
+        }
+      ],
+      "keywordRank": null,
+      "semanticRank": null,
+      "keywordOk": true,
+      "semanticOk": false,
+      "mustNot": null
+    }
+  ]
+}

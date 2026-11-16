@@ -4,6 +4,7 @@ import { AR } from "@/lib/messages";
 import { arNotFound, arServerError, type RouteContext } from "@/lib/handlers/parent";
 import { resolveFile } from "@/lib/handlers/file-item";
 import { queueProcessingOrMark, readValidatedUpload } from "@/lib/handlers/files";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 
 // POST /api/files/[id]/replace  (multipart, field "file")
 // Same validation as a normal upload -> new private disk file
@@ -51,6 +52,11 @@ export async function POST(request: Request, context: RouteContext) {
 
     committed = true;
     await removeStoredFiles([replaced.oldStorageKey]);
+
+    // Week 8: the old version's semantic rows went with its Chunks (cascade);
+    // this clears its indexing status. The Worker indexes the new version
+    // once its processing is Ready.
+    await syncSemanticIndex({ kind: "file", id: file.id });
 
     const queued = await queueProcessingOrMark(file.id, replaced.newVersion);
 

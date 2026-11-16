@@ -11,10 +11,12 @@ import "server-only";
 import pool from "@/lib/db";
 import { isAdmin, searchableContentSql } from "@/lib/authz";
 import {
+  SEARCH_MODES,
   SEARCH_TYPES,
   type ContentScope,
   type CurrentUser,
   type ParentKind,
+  type SearchMode,
   type SearchResult,
   type SearchType,
 } from "@/lib/definitions";
@@ -22,9 +24,13 @@ import { AR } from "@/lib/messages";
 
 export const SEARCH_PAGE_SIZE = 20;
 const MAX_QUERY_LENGTH = 100;
+// Week 8: semantic queries are natural-language questions.
+export const MAX_SEMANTIC_QUERY_LENGTH = 300;
 const MAX_PAGE = 1000;
 
 export type SearchParams = {
+  // Week 8: "keyword" (default, this file) or "semantic" (lib/semantic-search.ts)
+  mode: SearchMode;
   q: string;
   type: SearchType;
   // "all" | "company" | "<department id>"
@@ -43,18 +49,27 @@ function first(value: string | string[] | undefined) {
 export function parseSearchParams(
   raw: RawParams
 ): { ok: true; value: SearchParams } | { ok: false; error: string } {
+  const mode = first(raw.mode) ?? "keyword";
   const q = (first(raw.q) ?? "").trim();
   const type = first(raw.type) ?? "all";
   const department = first(raw.department) ?? "all";
   const tag = (first(raw.tag) ?? "all").trim();
   const pageText = first(raw.page) ?? "1";
 
+  if (!SEARCH_MODES.includes(mode as SearchMode)) {
+    return { ok: false, error: AR.searchInvalidFilter };
+  }
+
   if (!q) {
     return { ok: false, error: AR.searchQueryRequired };
   }
 
-  if (q.length > MAX_QUERY_LENGTH) {
+  if (mode === "keyword" && q.length > MAX_QUERY_LENGTH) {
     return { ok: false, error: AR.searchQueryTooLong };
+  }
+
+  if (mode === "semantic" && q.length > MAX_SEMANTIC_QUERY_LENGTH) {
+    return { ok: false, error: AR.semanticQueryTooLong };
   }
 
   const page = Number(pageText);
@@ -73,6 +88,7 @@ export function parseSearchParams(
   return {
     ok: true,
     value: {
+      mode: mode as SearchMode,
       q,
       type: type as SearchType,
       department,
@@ -278,6 +294,7 @@ export async function searchContent(user: CurrentUser, params: SearchParams) {
   }));
 
   return {
+    mode: "keyword" as const,
     results,
     total,
     page: params.page,

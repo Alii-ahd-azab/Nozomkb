@@ -1,13 +1,14 @@
-import { deleteFileMetadata, setFileActive, toFileItem } from "@/lib/files";
+import { deleteFileMetadata, getFileById, setFileActive, toFileItem } from "@/lib/files";
 import { removeStoredFiles } from "@/lib/storage";
 import { jsonError } from "@/lib/api";
 import { AR } from "@/lib/messages";
 import { arServerError, type RouteContext } from "@/lib/handlers/parent";
 import { resolveFile } from "@/lib/handlers/file-item";
 import { queueProcessingOrMark } from "@/lib/handlers/files";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 
 // DELETE /api/files/[id] -> same management permission as the parent.
-// Chunks disappear with the row (ON DELETE CASCADE). A Job still waiting in
+// Chunks and semantic rows disappear with the row (ON DELETE CASCADE). A Job still waiting in
 // the Queue later finds no File and exits without writing anything.
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
@@ -56,7 +57,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       return jsonError(AR.invalidRequest, 400);
     }
 
-    let updated = await setFileActive(resolved.file.id, isActive);
+    await setFileActive(resolved.file.id, isActive);
+
+    // Week 8: disable -> its semantic rows are removed now;
+    // enable (Ready) -> queued for semantic indexing again.
+    await syncSemanticIndex({ kind: "file", id: resolved.file.id });
+
+    let updated = await getFileById(resolved.file.id);
 
     if (
       updated &&

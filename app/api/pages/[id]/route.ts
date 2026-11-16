@@ -5,6 +5,7 @@ import {
   canTargetDepartment,
 } from "@/lib/authz";
 import { getPageById, updatePage } from "@/lib/pages";
+import { syncSemanticIndex } from "@/lib/queue/semantic-indexing-queue";
 import {
   forbidden,
   isBadInputDatabaseError,
@@ -132,6 +133,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!updated) {
       return notFound("Page");
     }
+
+    // Week 8: same lifecycle rules as Posts (edit / publish / archive).
+    await syncSemanticIndex({ kind: "page", id: updated.id });
 
     return Response.json(updated);
   } catch (error) {

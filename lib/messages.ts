@@ -46,6 +46,15 @@ export const AR = {
   searchInvalidFilter: "قيمة الفلتر غير صالحة.",
   searchFailed: "تعذّر تنفيذ البحث. حاول مرة أخرى.",
 
+  // Week 8: Semantic Search / semantic indexing
+  semanticQueryTooLong: "سؤال البحث الدلالي طويل جدًا (300 حرف كحد أقصى).",
+  semanticSearchUnavailable:
+    "البحث الدلالي غير متاح حاليًا. استخدم البحث بالكلمات المفتاحية أو حاول لاحقًا.",
+  semanticIndexRetrying:
+    "تعذّرت فهرسة المحتوى للبحث الدلالي مؤقتًا. ستتم إعادة المحاولة تلقائيًا.",
+  semanticIndexFailed:
+    "تعذّرت فهرسة المحتوى للبحث الدلالي بعد عدة محاولات.",
+
   specialtyTooLong: "التخصص أطول من الحد المسموح (100 حرف).",
   profileReadOnlyField: "لا يمكن تعديل الدور أو القسم أو البيانات الأساسية من الملف الشخصي. يمكنك تعديل التخصص فقط.",
   profileFailed: "تعذّر حفظ الملف الشخصي. حاول مرة أخرى.",
